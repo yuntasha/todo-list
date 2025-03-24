@@ -1,0 +1,145 @@
+package practice.project.todo_list.dao;
+
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import practice.project.todo_list.domain.Todo;
+import practice.project.todo_list.dto.TodoDetailDto;
+import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.web.dto.PostRequestDto;
+
+import javax.sql.DataSource;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+public class TodoDaoImpl implements TodoDao {
+
+    private NamedParameterJdbcTemplate jdbcTemplate;
+
+
+
+    public TodoDaoImpl(DataSource dataSource) {
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    }
+
+    @Override
+    public List<TodoTitleDto> findAll() {
+
+        String sql = "SELECT " +
+                "id, title, state, create_at " +
+                "FROM " +
+                "todo " +
+                "WHERE " +
+                "delete_state = 0";
+        System.out.println("sql = " + sql);
+
+        return jdbcTemplate.query(sql, todoTitleMapper);
+    }
+
+    @Override
+    public List<TodoTitleDto> findByState(int state) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("state", state);
+
+        String sql = "SELECT " +
+                "id, title, state, create_at " +
+                "FROM " +
+                "todo " +
+                "WHERE " +
+                "state = :state";
+
+
+        return jdbcTemplate.query(sql, map, todoTitleMapper);
+    }
+
+    private RowMapper<TodoTitleDto> todoTitleMapper = (rs, idx) -> {
+        return TodoTitleDto.builder()
+                .id(rs.getInt("id"))
+                .title(rs.getString("title"))
+                .state(rs.getInt("state"))
+                .createAt(rs.getTimestamp("create_at").toLocalDateTime())
+                .build();
+    };
+
+    @Override
+    public Optional<TodoDetailDto> findById(int id) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+
+        String sql = "SELECT " +
+                "id, title, content, state, create_at, update_at " +
+                "FROM " +
+                "todo " +
+                "WHERE " +
+                "delete_state = 0 " +
+                "AND " +
+                "id = :id";
+
+
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(sql, map, todoDetailMapper));
+        } catch (NullPointerException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public int postTodo(PostRequestDto postRequestDto) {
+        String sql = "INSERT INTO todo(title, content, create_at, update_at)" +
+                "VALUES(:title, :content, :createAt, :updateAt)";
+
+        SqlParameterSource param = new BeanPropertySqlParameterSource(Todo.builder()
+                .title(postRequestDto.getTitle())
+                .content(postRequestDto.getContent())
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
+                .build());
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(sql, param, keyHolder);
+
+        return keyHolder.getKey().intValue();
+    }
+
+    @Override
+    public int setDeleteStateByid(int id) {
+        String sql = "UPDATE todo SET update_at = :updateAt, delete_state = 1 " +
+                "WHERE id = :id";
+        
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("updateAt", LocalDateTime.now());
+        
+        return jdbcTemplate.update(sql, map);
+    }
+
+    @Override
+    public void deleteByLocalDate(LocalDateTime now) {
+        String sql = "DELETE todo " +
+                "WHERE DATE(update_at) < :deadLine";
+
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("deadLine", now.minusMonths(1L));
+
+        jdbcTemplate.update(sql, map);
+    }
+
+    private RowMapper<TodoDetailDto> todoDetailMapper = (rs, idx) -> {
+        return TodoDetailDto.builder()
+                .id(rs.getInt("id"))
+                .title(rs.getString("title"))
+                .content(rs.getString("content"))
+                .state(rs.getInt("state"))
+                .createAt(rs.getTimestamp("create_at").toLocalDateTime())
+                .updateAt(rs.getTimestamp("update_at").toLocalDateTime())
+                .build();
+    };
+}
