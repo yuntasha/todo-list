@@ -1,5 +1,6 @@
 package practice.project.todo_list.dao;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -9,6 +10,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.global.error.code.TodoErrorCode;
+import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
@@ -20,7 +23,7 @@ import java.util.Optional;
 
 public class TodoDaoImpl implements TodoDao {
 
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
 
 
@@ -84,8 +87,8 @@ public class TodoDaoImpl implements TodoDao {
 
         try {
             return Optional.of(jdbcTemplate.queryForObject(sql, map, todoDetailMapper));
-        } catch (NullPointerException e) {
-            return Optional.empty();
+        } catch (EmptyResultDataAccessException e) {
+            throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
         }
     }
 
