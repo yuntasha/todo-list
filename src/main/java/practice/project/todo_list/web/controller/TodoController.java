@@ -6,7 +6,9 @@ import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
 import practice.project.todo_list.global.response.SuccessResponseDto;
 import practice.project.todo_list.service.TodoService;
+import practice.project.todo_list.web.dto.DeleteResponseDto;
 import practice.project.todo_list.web.dto.PostRequestDto;
+import practice.project.todo_list.web.dto.PostResponseDto;
 
 import java.util.List;
 
@@ -29,13 +31,11 @@ public class TodoController {
 
     @PostMapping
     public SuccessResponseDto<Object> postTodo(@RequestBody PostRequestDto postRequestDto) {
-        todoService.postTodo(postRequestDto);
-        return SuccessResponseDto.success();
+        return SuccessResponseDto.success(new PostResponseDto(todoService.postTodo(postRequestDto)));
     }
 
     @DeleteMapping("/{id}")
     public SuccessResponseDto<Object> deleteTodo(@PathVariable("id") int id) {
-        todoService.deleteTodo(id);
-        return SuccessResponseDto.success();
+        return SuccessResponseDto.success(new DeleteResponseDto(todoService.deleteTodo(id)));
     }
 }
