@@ -28,8 +28,9 @@ public class TodoController {
     }
 
     @PostMapping
-    public void postTodo(@RequestBody PostRequestDto postRequestDto) {
+    public SuccessResponseDto<Object> postTodo(@RequestBody PostRequestDto postRequestDto) {
         todoService.postTodo(postRequestDto);
+        return SuccessResponseDto.success();
     }
 
     @DeleteMapping("/{id}")
