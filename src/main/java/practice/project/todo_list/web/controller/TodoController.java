@@ -2,7 +2,6 @@ package practice.project.todo_list.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import practice.project.todo_list.dao.TodoDao;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
 import practice.project.todo_list.global.response.SuccessResponseDto;
@@ -34,7 +33,8 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTodo(@PathVariable("id") int id) {
+    public SuccessResponseDto<Object> deleteTodo(@PathVariable("id") int id) {
         todoService.deleteTodo(id);
+        return SuccessResponseDto.success();
     }
 }

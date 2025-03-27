@@ -1,5 +1,6 @@
 package practice.project.todo_list.global.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
@@ -7,6 +8,7 @@ import lombok.Getter;
 @JsonPropertyOrder({"success", "code", "message", "result"})
 public class SuccessResponseDto<T> extends BaseResponseDto {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final T result;
 
     private SuccessResponseDto(T result) {
