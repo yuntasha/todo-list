@@ -88,7 +88,7 @@ public class TodoDaoImpl implements TodoDao {
         try {
             return Optional.of(jdbcTemplate.queryForObject(sql, map, todoDetailMapper));
         } catch (EmptyResultDataAccessException e) {
-            throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
+            return Optional.empty();
         }
     }
 
