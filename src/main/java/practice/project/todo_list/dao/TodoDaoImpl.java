@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
@@ -21,11 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Repository
 public class TodoDaoImpl implements TodoDao {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
-
 
     public TodoDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -40,7 +40,6 @@ public class TodoDaoImpl implements TodoDao {
                 "todo " +
                 "WHERE " +
                 "delete_state = 0";
-        System.out.println("sql = " + sql);
 
         return jdbcTemplate.query(sql, todoTitleMapper);
     }
