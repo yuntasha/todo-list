@@ -9,14 +9,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import practice.project.todo_list.domain.Todo;
+import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
-import practice.project.todo_list.global.error.code.TodoErrorCode;
-import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,4 +145,21 @@ public class TodoDaoImpl implements TodoDao {
                 .updateAt(rs.getTimestamp("update_at").toLocalDateTime())
                 .build();
     };
+
+    @Override
+    public List<TodoTitleDto> findByPeriod(PeriodDto periodDto) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("start", LocalDateTime.of(periodDto.getStart(), LocalTime.MIN));
+        map.put("end", LocalDateTime.of(periodDto.getEnd(), LocalTime.MAX));
+
+        String sql = "SELECT " +
+                "id, title, state, create_at " +
+                "FROM " +
+                "todo " +
+                "WHERE create_at " +
+                "BETWEEN :start AND :end";
+
+
+        return jdbcTemplate.query(sql, map, todoTitleMapper);
+    }
 }

@@ -1,5 +1,6 @@
 package practice.project.todo_list.dao;
 
+import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
 import practice.project.todo_list.web.dto.PostRequestDto;
@@ -15,4 +16,5 @@ public interface TodoDao {
     int postTodo(PostRequestDto postRequestDto);
     int setDeleteStateByid(int id);
     void deleteByLocalDate(LocalDateTime now);
+    List<TodoTitleDto> findByPeriod(PeriodDto periodDto);
 }

@@ -4,5 +4,3 @@ spring:
     url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
     username: h2test
     password: h2test
-  table:
-    sql: "CREATE TABLE `todo` (`id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Auto Increament', `title` varchar(20) NOT NULL COMMENT '할일 제목', `content` varchar(200) DEFAULT NULL COMMENT '할일 내용', `state` int(11) NOT NULL DEFAULT 0 COMMENT '0 : Todo 1: In Progress 2: Done', `create_at` timestamp NOT NULL COMMENT '생성 시간', `update_at` timestamp NOT NULL COMMENT '수정 시간 처음에는 생성 시간과 같음', `delete_state` int(11) NOT NULL DEFAULT 0 COMMENT '0: 일반 1: 휴지통(삭제 시간은 수정 시간)', PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;"

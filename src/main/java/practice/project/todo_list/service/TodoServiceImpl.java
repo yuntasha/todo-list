@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import practice.project.todo_list.dao.TodoDao;
+import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -37,5 +41,14 @@ public class TodoServiceImpl implements TodoService {
     public int deleteTodo(int id) {
         todoDao.findById(id).orElseThrow(() -> new BusinessException(TodoErrorCode.TODO_NOT_FOUND));
         return todoDao.setDeleteStateByid(id);
+    }
+
+    @Override
+    public List<TodoTitleDto> getTodoByPeriod(PeriodDto periodDto) {
+        return todoDao.findByPeriod(periodDto);
+    }
+
+    private int change(String s, int start, int end) {
+        return Integer.parseInt(s.substring(start, end));
     }
 }
