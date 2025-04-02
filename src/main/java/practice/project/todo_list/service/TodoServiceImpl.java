@@ -45,6 +45,9 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public List<TodoTitleDto> getTodoByPeriod(PeriodDto periodDto) {
+        if (periodDto.getStart().isAfter(periodDto.getEnd())) {
+            throw new BusinessException(TodoErrorCode.WRONG_PERIOD);
+        }
         return todoDao.findByPeriod(periodDto);
     }
 
