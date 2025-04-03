@@ -12,6 +12,8 @@ import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.global.error.code.TodoErrorCode;
+import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
@@ -161,5 +163,19 @@ public class TodoDaoImpl implements TodoDao {
 
 
         return jdbcTemplate.query(sql, map, todoTitleMapper);
+    }
+
+    @Override
+    public int patchState(int id, int state) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("state", state);
+
+        String sql = "UPDATE " +
+                "TODO " +
+                "SET state = :state " +
+                "WHERE id = :id AND delete_state = 0";
+
+        return jdbcTemplate.update(sql, map);
     }
 }
