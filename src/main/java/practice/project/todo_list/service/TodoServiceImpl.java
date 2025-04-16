@@ -2,8 +2,10 @@ package practice.project.todo_list.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import practice.project.todo_list.dao.TodoDao;
+import practice.project.todo_list.dto.PatchStateDTO;
 import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
@@ -18,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TodoServiceImpl implements TodoService {
 
     private final TodoDao todoDao;
@@ -53,5 +56,11 @@ public class TodoServiceImpl implements TodoService {
 
     private int change(String s, int start, int end) {
         return Integer.parseInt(s.substring(start, end));
+    }
+
+    @Override
+    public void patchState(PatchStateDTO patchStateDTO) {
+        int count = todoDao.patchState(patchStateDTO.getId(), patchStateDTO.getState());
+        if (count != 1) throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
     }
 }

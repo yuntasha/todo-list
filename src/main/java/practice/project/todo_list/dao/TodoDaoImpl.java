@@ -172,7 +172,7 @@ public class TodoDaoImpl implements TodoDao {
         map.put("state", state);
 
         String sql = "UPDATE " +
-                "TODO " +
+                "todo " +
                 "SET state = :state " +
                 "WHERE id = :id AND delete_state = 0";
 

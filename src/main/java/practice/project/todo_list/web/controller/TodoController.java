@@ -1,9 +1,12 @@
 package practice.project.todo_list.web.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import practice.project.todo_list.dto.PatchStateDTO;
 import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
@@ -45,5 +48,11 @@ public class TodoController {
     @GetMapping("/period")
     public SuccessResponseDto<GetTodoListResponse> getTodoListByPeriod(@ModelAttribute @Valid GetPeriodRequestDto requestDto) {
         return SuccessResponseDto.success(new GetTodoListResponse(todoService.getTodoByPeriod(new PeriodDto(requestDto.getStart(), requestDto.getEnd()))));
+    }
+
+    @PatchMapping("/{id}/state")
+    public SuccessResponseDto<Object> patchStateById(@PathVariable("id") @Min(1) Integer id, @RequestBody @Valid PatchRequestDTO patchRequestDTO) {
+        todoService.patchState(PatchStateDTO.of(id, patchRequestDTO));
+        return SuccessResponseDto.success();
     }
 }

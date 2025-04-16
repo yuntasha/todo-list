@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import practice.project.todo_list.dao.TodoDao;
+import practice.project.todo_list.dto.PatchStateDTO;
 import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoTitleDto;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
@@ -82,5 +83,37 @@ class TodoServiceImplTest {
         BusinessException businessException = assertThrows(BusinessException.class, () -> todoService.getTodoByPeriod(input));
 
         assertEquals(TodoErrorCode.WRONG_PERIOD, businessException.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("상태 변환 - 존재하지 않는 id")
+    void patchStateNotFoundId() {
+        // given
+        int id = 2;
+        int state = 1;
+        PatchStateDTO dto = new PatchStateDTO(id, state);
+        doReturn(0).when(todoDao)
+                .patchState(anyInt(), anyInt());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> todoService.patchState(dto));
+
+        // then
+        assertEquals(TodoErrorCode.TODO_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("상태 변환 - 성공")
+    void patchStateSuccess() {
+        // given
+        int id = 2;
+        int state = 1;
+        PatchStateDTO dto = new PatchStateDTO(id, state);
+        doReturn(1).when(todoDao)
+                .patchState(anyInt(), anyInt());
+
+        // when
+        // then
+        assertDoesNotThrow(() -> todoService.patchState(dto));
     }
 }

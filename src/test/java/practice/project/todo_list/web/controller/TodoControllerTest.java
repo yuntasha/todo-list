@@ -11,22 +11,30 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import practice.project.todo_list.dto.PatchStateDTO;
 import practice.project.todo_list.dto.PeriodDto;
+import practice.project.todo_list.global.error.code.TodoErrorCode;
+import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.global.error.handler.GlobalExceptionHandler;
 import practice.project.todo_list.service.TodoService;
+import practice.project.todo_list.web.dto.PatchRequestDTO;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +51,7 @@ class TodoControllerTest {
     @BeforeEach
     void setUp() {
         this.gson = new Gson();
+
         this.mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
@@ -112,5 +121,88 @@ class TodoControllerTest {
                 Arguments.of("20190203", null), // null 안됨
                 Arguments.of("", "") // 값이 비어있으면 에러
         );
+    }
+
+    @ParameterizedTest
+    @DisplayName("상태 변환 API 성공")
+    @MethodSource("parameterStateSuccess")
+    void patchStateFormatSuccess(String id, String state) throws Exception {
+        // given
+        final String url = "/api/v1/todo/" + id + "/state";
+        doNothing().when(todoService).patchState(any(PatchStateDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.patch(url)
+                        .content(gson.toJson(new PatchRequestDTO(Integer.parseInt(state))))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    private static Stream<Arguments> parameterStateSuccess() {
+        return Stream.of(
+                Arguments.of("1", "2"), // state 범위 초과
+                Arguments.of("1", "1"), // state 범위 초과
+                Arguments.of("1", "0"), // state 범위 초과
+                Arguments.of("21", "2"), // 아이디 음수
+                Arguments.of("22", "1"), // 아이디 0
+                Arguments.of("22", "0") // 둘 다 문제
+        );
+    }
+
+    @ParameterizedTest
+    @DisplayName("상태 변환 API 실패 - 형식 오류")
+    @MethodSource("parameterStateFormmatError")
+    void patchStateFormatError(String id, String state) throws Exception {
+        // given
+        final String url = "/api/v1/todo/" + id + "/state";
+        String json = "{\"state\": \"" + state + "\"}";
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.patch(url)
+                        .content(json)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isBadRequest());
+    }
+
+    private static Stream<Arguments> parameterStateFormmatError() {
+        return Stream.of(
+                Arguments.of("1", "-1"), // state 범위 초과
+                Arguments.of("1", "3"), // state 범위 초과
+                Arguments.of("1", "5"), // state 범위 초과
+                Arguments.of("0", "4bd") // state가 숫자가 아님
+        );
+    }
+
+    @Test
+    @DisplayName("상태 변환 API 실패 - 존재하지 않는 id")
+    void patchStateNotExistError() throws Exception {
+        // given
+        String id = "3";
+        String state = "2";
+        final String url = "/api/v1/todo/" + id + "/state";
+        String json = "{\"state\": \"" + state + "\"}";
+
+        doThrow(new BusinessException(TodoErrorCode.TODO_NOT_FOUND))
+                .when(todoService)
+                .patchState(any(PatchStateDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.patch(url)
+                        .content(json)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(containsString("해당 TODO는 존재하지 않습니다.")));
     }
 }
