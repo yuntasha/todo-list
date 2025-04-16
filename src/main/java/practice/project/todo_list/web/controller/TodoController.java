@@ -57,7 +57,7 @@ public class TodoController {
     }
 
     @GetMapping("/trash")
-    public SuccessResponseDto<GetTodoListResponse> getTodoTrashList() {
-        return SuccessResponseDto.success(new GetTodoListResponse(todoService.getDeleteTodo()));
+    public SuccessResponseDto<GetDeleteTodoListResponse> getTodoTrashList() {
+        return SuccessResponseDto.success(new GetDeleteTodoListResponse(todoService.getDeleteTodo()));
     }
 }

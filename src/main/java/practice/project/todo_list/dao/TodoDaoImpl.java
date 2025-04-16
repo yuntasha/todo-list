@@ -10,14 +10,12 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.PeriodDto;
+import practice.project.todo_list.dto.TodoDeleteTitleDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
-import practice.project.todo_list.global.error.code.TodoErrorCode;
-import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -38,7 +36,7 @@ public class TodoDaoImpl implements TodoDao {
     public List<TodoTitleDto> findAll() {
 
         String sql = "SELECT " +
-                "id, title, state, create_at " +
+                "id, title, state, update_at " +
                 "FROM " +
                 "todo " +
                 "WHERE " +
@@ -53,7 +51,7 @@ public class TodoDaoImpl implements TodoDao {
         map.put("state", state);
 
         String sql = "SELECT " +
-                "id, title, state, create_at " +
+                "id, title, state, update_at " +
                 "FROM " +
                 "todo " +
                 "WHERE " +
@@ -68,7 +66,7 @@ public class TodoDaoImpl implements TodoDao {
                 .id(rs.getInt("id"))
                 .title(rs.getString("title"))
                 .state(rs.getInt("state"))
-                .createAt(rs.getTimestamp("create_at").toLocalDateTime())
+                .updateAt(rs.getTimestamp("update_at").toLocalDateTime())
                 .build();
     };
 
@@ -155,10 +153,10 @@ public class TodoDaoImpl implements TodoDao {
         map.put("end", LocalDateTime.of(periodDto.getEnd(), LocalTime.MAX));
 
         String sql = "SELECT " +
-                "id, title, state, create_at " +
+                "id, title, state, update_at " +
                 "FROM " +
                 "todo " +
-                "WHERE create_at " +
+                "WHERE update_at " +
                 "BETWEEN :start AND :end";
 
 
@@ -170,24 +168,34 @@ public class TodoDaoImpl implements TodoDao {
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
         map.put("state", state);
+        map.put("update_at", LocalDateTime.now());
 
         String sql = "UPDATE " +
                 "todo " +
-                "SET state = :state " +
+                "SET state = :state, update_at = :update_at " +
                 "WHERE id = :id AND delete_state = 0";
 
         return jdbcTemplate.update(sql, map);
     }
 
     @Override
-    public List<TodoTitleDto> findDelete() {
+    public List<TodoDeleteTitleDto> findDelete() {
         String sql = "SELECT " +
-                "id, title, state, create_at " +
+                "id, title, state, update_at " +
                 "FROM " +
                 "todo " +
                 "WHERE " +
                 "delete_state = 1";
 
-        return jdbcTemplate.query(sql, todoTitleMapper);
+        return jdbcTemplate.query(sql, todoDeleteTitleMapper);
     }
+
+    private RowMapper<TodoDeleteTitleDto> todoDeleteTitleMapper = (rs, idx) -> {
+        return TodoDeleteTitleDto.builder()
+                .id(rs.getInt("id"))
+                .title(rs.getString("title"))
+                .state(rs.getInt("state"))
+                .deleteAt(rs.getTimestamp("update_at").toLocalDateTime())
+                .build();
+    };
 }

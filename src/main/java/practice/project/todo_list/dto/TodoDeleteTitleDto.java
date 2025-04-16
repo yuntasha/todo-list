@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class TodoTitleDto {
+public class TodoDeleteTitleDto {
     private int id;
     private String title;
     private int state;
-    private LocalDateTime updateAt;
+    private LocalDateTime deleteAt;
 }

@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.PeriodDto;
+import practice.project.todo_list.dto.TodoDeleteTitleDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
@@ -230,7 +231,7 @@ class TodoDaoImplTest {
     void getDeleteTodoListEmpty() {
         // given
         // when
-        List<TodoTitleDto> delete = todoDao.findDelete();
+        List<TodoDeleteTitleDto> delete = todoDao.findDelete();
 
         // then
         assertTrue(delete.isEmpty());
@@ -244,7 +245,7 @@ class TodoDaoImplTest {
         Arrays.stream(id).forEach(todoDao::setDeleteStateByid);
 
         // when
-        List<TodoTitleDto> delete = todoDao.findDelete();
+        List<TodoDeleteTitleDto> delete = todoDao.findDelete();
 
         // then
         assertEquals(3, delete.size());
