@@ -1,6 +1,8 @@
 package practice.project.todo_list.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,11 @@ public class ErrorResponseDto extends BaseResponseDto {
         this.errors = errors;
     }
 
+    public ErrorResponseDto(ErrorCode errorCode, String message) {
+        super(false, errorCode.getCode(), errorCode.getMessage());
+        this.errors = new ArrayList<>();
+    }
+
     @Getter
     @Builder
     @RequiredArgsConstructor
@@ -37,6 +44,15 @@ public class ErrorResponseDto extends BaseResponseDto {
             return ValidationError.builder()
                     .field(fieldError.getField())
                     .message(fieldError.getDefaultMessage())
+                    .build();
+        }
+
+        public static ValidationError of(ConstraintViolation<?> c) {
+            String[] path = c.getPropertyPath().toString().split("\\.");
+
+            return ValidationError.builder()
+                    .field(path[path.length - 1])
+                    .message(c.getMessage())
                     .build();
         }
     }

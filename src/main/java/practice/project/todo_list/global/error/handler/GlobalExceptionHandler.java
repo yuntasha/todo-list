@@ -1,5 +1,7 @@
 package practice.project.todo_list.global.error.handler;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -22,6 +24,7 @@ import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.global.response.ErrorResponseDto;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestControllerAdvice
@@ -30,6 +33,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Object> handleBusiness(BusinessException e) {
         return createResponseEntity(e.getErrorCode());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
+        return createResponseEntity(ex, CommonErrorCode.NOT_VALID_ERROR);
     }
 
 //    @Override
@@ -97,6 +105,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDto(errorCode));
     }
 
+    private ResponseEntity<Object> createResponseEntity(ErrorCode errorCode, String message) {
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(new ErrorResponseDto(errorCode, message));
+    }
+
     private ResponseEntity<Object> createResponseEntity(MethodArgumentNotValidException ex, ErrorCode errorCode) {
         return ResponseEntity.status(errorCode.getHttpStatus())
                 .body(new ErrorResponseDto(errorCode, convertValidateError(ex)));
@@ -105,6 +118,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private List<ErrorResponseDto.ValidationError> convertValidateError(MethodArgumentNotValidException ex) {
         return ex.getBindingResult()
                 .getFieldErrors()
+                .stream()
+                .map(ErrorResponseDto.ValidationError::of)
+                .toList();
+    }
+
+    private ResponseEntity<Object> createResponseEntity(ConstraintViolationException ex, ErrorCode errorCode) {
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(new ErrorResponseDto(errorCode, convertValidateError(ex)));
+    }
+
+    private List<ErrorResponseDto.ValidationError> convertValidateError(ConstraintViolationException ex) {
+        return ex.getConstraintViolations()
                 .stream()
                 .map(ErrorResponseDto.ValidationError::of)
                 .toList();
