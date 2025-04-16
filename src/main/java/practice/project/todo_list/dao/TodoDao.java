@@ -18,4 +18,5 @@ public interface TodoDao {
     void deleteByLocalDate(LocalDateTime now);
     List<TodoTitleDto> findByPeriod(PeriodDto periodDto);
     int patchState(int id, int state);
+    List<TodoTitleDto> findDelete();
 }

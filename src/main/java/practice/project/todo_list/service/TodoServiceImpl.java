@@ -63,4 +63,9 @@ public class TodoServiceImpl implements TodoService {
         int count = todoDao.patchState(patchStateDTO.getId(), patchStateDTO.getState());
         if (count != 1) throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
     }
+
+    @Override
+    public List<TodoTitleDto> getDeleteTodo() {
+        return todoDao.findDelete();
+    }
 }

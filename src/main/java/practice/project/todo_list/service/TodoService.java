@@ -16,4 +16,5 @@ public interface TodoService {
     int deleteTodo(int id);
     List<TodoTitleDto> getTodoByPeriod(PeriodDto periodDto);
     void patchState(PatchStateDTO patchStateDTO);
+    List<TodoTitleDto> getDeleteTodo();
 }

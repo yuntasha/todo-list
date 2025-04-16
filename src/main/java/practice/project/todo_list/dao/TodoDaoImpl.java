@@ -178,4 +178,16 @@ public class TodoDaoImpl implements TodoDao {
 
         return jdbcTemplate.update(sql, map);
     }
+
+    @Override
+    public List<TodoTitleDto> findDelete() {
+        String sql = "SELECT " +
+                "id, title, state, create_at " +
+                "FROM " +
+                "todo " +
+                "WHERE " +
+                "delete_state = 1";
+
+        return jdbcTemplate.query(sql, todoTitleMapper);
+    }
 }

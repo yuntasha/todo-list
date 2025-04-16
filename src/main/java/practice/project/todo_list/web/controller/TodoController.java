@@ -55,4 +55,9 @@ public class TodoController {
         todoService.patchState(PatchStateDTO.of(id, patchRequestDTO));
         return SuccessResponseDto.success();
     }
+
+    @GetMapping("/trash")
+    public SuccessResponseDto<GetTodoListResponse> getTodoTrashList() {
+        return SuccessResponseDto.success(new GetTodoListResponse(todoService.getDeleteTodo()));
+    }
 }

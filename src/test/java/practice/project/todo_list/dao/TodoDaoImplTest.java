@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -222,6 +223,34 @@ class TodoDaoImplTest {
                 Arguments.of(1, 2), // 성공적
                 Arguments.of(1, 0)  // 기존 state와 같은 경우
         );
+    }
+
+    @Test
+    @DisplayName("삭제된 Todo 조회 성공 - 비어있는 경우")
+    void getDeleteTodoListEmpty() {
+        // given
+        // when
+        List<TodoTitleDto> delete = todoDao.findDelete();
+
+        // then
+        assertTrue(delete.isEmpty());
+    }
+
+    @Test
+    @DisplayName("삭제된 Todo 조회 성공 - 존재하는 경우")
+    void getDeleteTodoExist() {
+        // given
+        int[] id = {1, 3, 4};
+        Arrays.stream(id).forEach(todoDao::setDeleteStateByid);
+
+        // when
+        List<TodoTitleDto> delete = todoDao.findDelete();
+
+        // then
+        assertEquals(3, delete.size());
+        assertEquals(1, delete.get(0).getId());
+        assertEquals(3, delete.get(1).getId());
+        assertEquals(4, delete.get(2).getId());
     }
 
     @AfterAll
