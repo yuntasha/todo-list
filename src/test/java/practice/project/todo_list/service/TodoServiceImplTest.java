@@ -116,4 +116,34 @@ class TodoServiceImplTest {
         // then
         assertDoesNotThrow(() -> todoService.patchState(dto));
     }
+
+    @Test
+    @DisplayName("todo 복원 - 성공")
+    void restoreTodoSuccess() {
+        // given
+        int id = 2;
+        doReturn(1).when(todoDao)
+                .setDeleteStateById(anyInt(), anyInt(), anyInt());
+
+        // when
+
+        // then
+        int n = assertDoesNotThrow(() -> todoService.restoreTodo(id));
+        assertEquals(id, n);
+    }
+
+    @Test
+    @DisplayName("todo 복원 - 실패")
+    void restoreTodoFailure() {
+        // given
+        int id = 2;
+        doReturn(0).when(todoDao)
+                .setDeleteStateById(anyInt(), anyInt(), anyInt());
+
+        // when
+
+        // then
+        BusinessException e = assertThrows(BusinessException.class, () -> todoService.restoreTodo(id));
+        assertEquals(TodoErrorCode.TODO_NOT_FOUND, e.getErrorCode());
+    }
 }

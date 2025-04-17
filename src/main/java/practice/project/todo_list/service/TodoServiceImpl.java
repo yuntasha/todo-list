@@ -51,10 +51,6 @@ public class TodoServiceImpl implements TodoService {
         return todoDao.findByPeriod(periodDto);
     }
 
-    private int change(String s, int start, int end) {
-        return Integer.parseInt(s.substring(start, end));
-    }
-
     @Override
     public void patchState(PatchStateDTO patchStateDTO) {
         int count = todoDao.patchState(patchStateDTO.getId(), patchStateDTO.getState());
@@ -64,5 +60,13 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public List<TodoDeleteTitleDto> getDeleteTodo() {
         return todoDao.findDelete();
+    }
+
+    @Override
+    public int restoreTodo(int id) {
+        if (todoDao.setDeleteStateById(id, ALIVE_STATE, DELETE_STATE) == 0) {
+            throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
+        }
+        return id;
     }
 }
