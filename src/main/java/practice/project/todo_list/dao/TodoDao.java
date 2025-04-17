@@ -15,7 +15,7 @@ public interface TodoDao {
     List<TodoTitleDto> findByState(int state);
     Optional<TodoDetailDto> findById(int id);
     int postTodo(PostRequestDto postRequestDto);
-    int setDeleteStateByid(int id);
+    int setDeleteStateById(int id, int state, int nowState);
     void deleteByLocalDate(LocalDateTime now);
     List<TodoTitleDto> findByPeriod(PeriodDto periodDto);
     int patchState(int id, int state);

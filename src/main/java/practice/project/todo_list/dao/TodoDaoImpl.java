@@ -112,14 +112,16 @@ public class TodoDaoImpl implements TodoDao {
     }
 
     @Override
-    public int setDeleteStateByid(int id) {
-        String sql = "UPDATE todo SET update_at = :updateAt, delete_state = 1 " +
-                "WHERE id = :id";
+    public int setDeleteStateById(int id, int state, int nowState) {
+        String sql = "UPDATE todo SET update_at = :updateAt, delete_state = :state " +
+                "WHERE id = :id AND delete_state = :nowState";
         
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
         map.put("updateAt", LocalDateTime.now());
-        
+        map.put("state", state);
+        map.put("nowState", nowState);
+
         return jdbcTemplate.update(sql, map);
     }
 

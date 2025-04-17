@@ -7,15 +7,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoDeleteTitleDto;
 import practice.project.todo_list.dto.TodoDetailDto;
 import practice.project.todo_list.dto.TodoTitleDto;
-import practice.project.todo_list.global.error.code.TodoErrorCode;
-import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
@@ -27,9 +24,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -195,7 +190,7 @@ class TodoDaoImplTest {
         // given
         int id = 1;
         int state = 2;
-        todoDao.setDeleteStateByid(id);
+        todoDao.setDeleteStateById(id, 1, 0);
 
         // when
         int count = todoDao.patchState(id, state);
@@ -242,7 +237,9 @@ class TodoDaoImplTest {
     void getDeleteTodoExist() {
         // given
         int[] id = {1, 3, 4};
-        Arrays.stream(id).forEach(todoDao::setDeleteStateByid);
+        for (int i : id) {
+            todoDao.setDeleteStateById(i, 1, 0);
+        }
 
         // when
         List<TodoDeleteTitleDto> delete = todoDao.findDelete();

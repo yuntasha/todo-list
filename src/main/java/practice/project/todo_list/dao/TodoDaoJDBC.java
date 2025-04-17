@@ -72,7 +72,7 @@
 //    }
 //
 //    @Override
-//    public int setDeleteStateByid(int id) {
+//    public int setDeleteStateById(int id) {
 //        return 0;
 //    }
 //

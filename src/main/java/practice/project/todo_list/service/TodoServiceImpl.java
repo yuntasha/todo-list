@@ -17,6 +17,8 @@ import java.util.List;
 public class TodoServiceImpl implements TodoService {
 
     private final TodoDao todoDao;
+    private final int ALIVE_STATE = 0;
+    private final int DELETE_STATE = 1;
 
     @Override
     public TodoDetailDto getTodoDetail(int id) {
@@ -35,8 +37,10 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public int deleteTodo(int id) {
-        todoDao.findById(id).orElseThrow(() -> new BusinessException(TodoErrorCode.TODO_NOT_FOUND));
-        return todoDao.setDeleteStateByid(id);
+        if (todoDao.setDeleteStateById(id, DELETE_STATE, ALIVE_STATE) == 0) {
+            throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
+        }
+        return id;
     }
 
     @Override
