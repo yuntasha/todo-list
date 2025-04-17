@@ -9,10 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import practice.project.todo_list.domain.Todo;
-import practice.project.todo_list.dto.PeriodDto;
-import practice.project.todo_list.dto.TodoDeleteTitleDto;
-import practice.project.todo_list.dto.TodoDetailDto;
-import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.dto.*;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
@@ -200,4 +197,20 @@ public class TodoDaoImpl implements TodoDao {
                 .deleteAt(rs.getTimestamp("update_at").toLocalDateTime())
                 .build();
     };
+
+    @Override
+    public int updateTodo(TodoUpdateDto todoUpdateDto) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", todoUpdateDto.getId());
+        map.put("title", todoUpdateDto.getTitle());
+        map.put("content", todoUpdateDto.getContent());
+        map.put("update_at", LocalDateTime.now());
+
+        String sql = "UPDATE " +
+                "todo " +
+                "SET title = :title, content = :content, update_at = :update_at " +
+                "WHERE id = :id AND delete_state = 0";
+
+        return jdbcTemplate.update(sql, map);
+    }
 }

@@ -9,10 +9,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 import practice.project.todo_list.domain.Todo;
-import practice.project.todo_list.dto.PeriodDto;
-import practice.project.todo_list.dto.TodoDeleteTitleDto;
-import practice.project.todo_list.dto.TodoDetailDto;
-import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.dto.*;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
@@ -25,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -249,6 +247,43 @@ class TodoDaoImplTest {
         assertEquals(1, delete.get(0).getId());
         assertEquals(3, delete.get(1).getId());
         assertEquals(4, delete.get(2).getId());
+    }
+
+    @Test
+    @DisplayName("Todo 수정 성공 - 존재하는 경우")
+    void updateTodoSuccess() {
+        // given
+        int id = 1;
+        String title = "수정 제목 1";
+        String content = "수정 내용 1";
+        TodoUpdateDto dto = new TodoUpdateDto(id, title, content);
+
+        // when
+        int count = todoDao.updateTodo(dto);
+        Optional<TodoDetailDto> opTodo = todoDao.findById(id);
+
+        // then
+        assertEquals(1, count);
+        TodoDetailDto todo = assertDoesNotThrow(() -> opTodo.orElseThrow(Exception::new));
+        assertEquals(title, todo.getTitle());
+        assertEquals(content, todo.getContent());
+        assertEquals(LocalDate.now(), todo.getUpdateAt().toLocalDate());
+    }
+
+    @Test
+    @DisplayName("Todo 수정 실패 - 존재하지 않는 경우")
+    void updateTodoFailure() {
+        // given
+        int id = 20;
+        String title = "수정 제목 1";
+        String content = "수정 내용 1";
+        TodoUpdateDto dto = new TodoUpdateDto(id, title, content);
+
+        // when
+        int count = todoDao.updateTodo(dto);
+
+        // then
+        assertEquals(0, count);
     }
 
     @AfterAll

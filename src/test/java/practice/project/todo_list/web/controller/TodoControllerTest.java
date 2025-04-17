@@ -20,11 +20,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import practice.project.todo_list.dto.PatchStateDTO;
 import practice.project.todo_list.dto.PeriodDto;
+import practice.project.todo_list.dto.TodoUpdateDto;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.global.error.handler.GlobalExceptionHandler;
 import practice.project.todo_list.service.TodoService;
 import practice.project.todo_list.web.dto.PatchRequestDTO;
+import practice.project.todo_list.web.dto.PutRequestDTO;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,5 +206,79 @@ class TodoControllerTest {
         // then
         result.andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString("해당 TODO는 존재하지 않습니다.")));
+    }
+
+    @Test
+    @DisplayName("Todo 제목, 내용 수정 성공")
+    void updateTodoSuccess() throws Exception {
+        // given
+        String id = "3";
+        final String url = "/api/v1/todo/" + id;
+
+        doNothing()
+                .when(todoService)
+                .updateTodo(any(TodoUpdateDto.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.put(url)
+                        .content(gson.toJson(new PutRequestDTO("제목 1", "내용 1")))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Todo 제목, 내용 수정 실패 - 존재하지 않는 아이디")
+    void updateTodoFailure() throws Exception {
+        // given
+        String id = "3";
+        final String url = "/api/v1/todo/" + id;
+
+        doThrow(new BusinessException(TodoErrorCode.TODO_NOT_FOUND))
+                .when(todoService)
+                .updateTodo(any(TodoUpdateDto.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.put(url)
+                        .content(gson.toJson(new PutRequestDTO("제목 1", "내용 1")))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(containsString("해당 TODO는 존재하지 않습니다.")));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Todo 제목, 내용 수정 실패 - 유효성 검사 실패")
+    @MethodSource("parameterUpdateFormmatError")
+    void updateTodoValidFailure(String title, String content) throws Exception {
+        // given
+        String id = "3";
+        final String url = "/api/v1/todo/" + id;
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.put(url)
+                        .content(gson.toJson(new PutRequestDTO(title, content)))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("Valid error")));
+    }
+
+    private static Stream<Arguments> parameterUpdateFormmatError() {
+        return Stream.of(
+                Arguments.of("", "-1"), // 빈칸
+                Arguments.of("1", ""), // 빈칸
+                Arguments.of(null, "5"), // null
+                Arguments.of("0", null) // null
+        );
     }
 }

@@ -69,4 +69,11 @@ public class TodoServiceImpl implements TodoService {
         }
         return id;
     }
+
+    @Override
+    public void updateTodo(TodoUpdateDto todoUpdateDto) {
+        if (todoDao.updateTodo(todoUpdateDto) == 0) {
+            throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
+        }
+    }
 }

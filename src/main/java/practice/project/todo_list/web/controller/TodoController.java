@@ -6,10 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import practice.project.todo_list.dto.PatchStateDTO;
-import practice.project.todo_list.dto.PeriodDto;
-import practice.project.todo_list.dto.TodoDetailDto;
-import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.dto.*;
 import practice.project.todo_list.global.response.SuccessResponseDto;
 import practice.project.todo_list.service.TodoService;
 import practice.project.todo_list.web.dto.*;
@@ -41,7 +38,7 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
-    public SuccessResponseDto<Object> deleteTodo(@PathVariable("id") int id) {
+    public SuccessResponseDto<Object> deleteTodo(@PathVariable("id") @Min(1) int id) {
         return SuccessResponseDto.success(new DeleteResponseDto(todoService.deleteTodo(id)));
     }
 
@@ -51,7 +48,7 @@ public class TodoController {
     }
 
     @PatchMapping("/{id}/state")
-    public SuccessResponseDto<Object> patchStateById(@PathVariable("id") @Min(1) Integer id, @RequestBody @Valid PatchRequestDTO patchRequestDTO) {
+    public SuccessResponseDto<Object> patchStateById(@PathVariable("id") @Min(1) int id, @RequestBody @Valid PatchRequestDTO patchRequestDTO) {
         todoService.patchState(PatchStateDTO.of(id, patchRequestDTO));
         return SuccessResponseDto.success();
     }
@@ -59,5 +56,16 @@ public class TodoController {
     @GetMapping("/trash")
     public SuccessResponseDto<GetDeleteTodoListResponse> getTodoTrashList() {
         return SuccessResponseDto.success(new GetDeleteTodoListResponse(todoService.getDeleteTodo()));
+    }
+
+    @PatchMapping("/{id}/restore")
+    public SuccessResponseDto<Object> patchRestoreById(@PathVariable("id") @Min(1) int id) {
+        return SuccessResponseDto.success(new DeleteResponseDto(todoService.restoreTodo(id)));
+    }
+
+    @PutMapping("/{id}")
+    public SuccessResponseDto<Object> putTodoById(@PathVariable("id") @Positive(message = "id는 양수입니다") int id, @RequestBody @Valid PutRequestDTO putRequestDTO) {
+        todoService.updateTodo(TodoUpdateDto.from(id, putRequestDTO));
+        return SuccessResponseDto.success();
     }
 }

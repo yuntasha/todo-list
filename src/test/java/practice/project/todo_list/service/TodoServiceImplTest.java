@@ -13,6 +13,7 @@ import practice.project.todo_list.dao.TodoDao;
 import practice.project.todo_list.dto.PatchStateDTO;
 import practice.project.todo_list.dto.PeriodDto;
 import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.dto.TodoUpdateDto;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
 
@@ -118,7 +119,7 @@ class TodoServiceImplTest {
     }
 
     @Test
-    @DisplayName("todo 복원 - 성공")
+    @DisplayName("Todo 복원 - 성공")
     void restoreTodoSuccess() {
         // given
         int id = 2;
@@ -133,7 +134,7 @@ class TodoServiceImplTest {
     }
 
     @Test
-    @DisplayName("todo 복원 - 실패")
+    @DisplayName("Todo 복원 - 실패")
     void restoreTodoFailure() {
         // given
         int id = 2;
@@ -145,5 +146,41 @@ class TodoServiceImplTest {
         // then
         BusinessException e = assertThrows(BusinessException.class, () -> todoService.restoreTodo(id));
         assertEquals(TodoErrorCode.TODO_NOT_FOUND, e.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Todo 수정 성공")
+    void updateTodoSuccess() {
+        // given
+        int id = 1;
+        String title = "수정 제목 1";
+        String content = "수정 내용 1";
+        TodoUpdateDto dto = new TodoUpdateDto(id, title, content);
+        doReturn(1)
+                .when(todoDao)
+                        .updateTodo(any());
+
+        // when
+        // then
+        assertDoesNotThrow(() -> todoService.updateTodo(dto));
+    }
+
+    @Test
+    @DisplayName("Todo 수정 실패 - 존재하지 않는 경우")
+    void updateTodoFailure() {
+        // given
+        int id = 20;
+        String title = "수정 제목 1";
+        String content = "수정 내용 1";
+        TodoUpdateDto dto = new TodoUpdateDto(id, title, content);
+        doReturn(0)
+                .when(todoDao)
+                .updateTodo(any());
+
+        // when
+        BusinessException ex = assertThrows(BusinessException.class, () -> todoService.updateTodo(dto));
+
+        // then
+        assertEquals(TodoErrorCode.TODO_NOT_FOUND, ex.getErrorCode());
     }
 }
