@@ -33,22 +33,6 @@ class TodoServiceImplTest {
     @Mock
     private TodoDao todoDao;
 
-    @Test
-    void getTodoDetail() {
-    }
-
-    @Test
-    void getTodo() {
-    }
-
-    @Test
-    void postTodo() {
-    }
-
-    @Test
-    void deleteTodo() {
-    }
-
     @ParameterizedTest
     @MethodSource("parameterPeriod")
     @DisplayName("기간 검색 API 성공")

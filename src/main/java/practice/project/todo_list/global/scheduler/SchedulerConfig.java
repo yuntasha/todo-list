@@ -1,4 +1,4 @@
-package practice.project.todo_list;
+package practice.project.todo_list.global.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
