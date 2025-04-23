@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -40,11 +41,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return createResponseEntity(ex, CommonErrorCode.NOT_VALID_ERROR);
     }
 
-//    @Override
-//    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-//        return createResponseEntity(CommonErrorCode.NOT_FOUND_URL);
-//    }
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return createResponseEntity(CommonErrorCode.NOT_VALID_ERROR, convertMessage(ex.getMessage()));
+    }
 
+    private String convertMessage(String message) {
+        return message.split("\"")[1] + " is wrong format";
+    }
 
     // URL은 존재하지만 HTTP 메서드가 잘못된 경우
     @Override

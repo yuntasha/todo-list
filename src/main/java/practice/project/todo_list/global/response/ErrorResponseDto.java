@@ -29,7 +29,7 @@ public class ErrorResponseDto extends BaseResponseDto {
     }
 
     public ErrorResponseDto(ErrorCode errorCode, String message) {
-        super(false, errorCode.getCode(), errorCode.getMessage());
+        super(false, errorCode.getCode(), message);
         this.errors = new ArrayList<>();
     }
 
