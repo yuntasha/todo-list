@@ -91,7 +91,7 @@ public class TodoDaoImpl implements TodoDao {
 
     @Override
     public int postTodo(PostRequestDto postRequestDto) {
-        String sql = "INSERT INTO todo(title, content, create_at, update_at)" +
+        String sql = "INSERT INTO todo(title, content, create_at, update_at) " +
                 "VALUES(:title, :content, :createAt, :updateAt)";
 
         SqlParameterSource param = new BeanPropertySqlParameterSource(Todo.builder()

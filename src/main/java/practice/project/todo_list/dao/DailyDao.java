@@ -7,6 +7,6 @@ import practice.project.todo_list.dto.DailyTitleDTO;
 import java.util.List;
 
 public interface DailyDao {
-    int create(DailyCreateDTO dailyCreateDTO);
+    int create(Daily daily);
     List<DailyTitleDTO> findAll();
 }

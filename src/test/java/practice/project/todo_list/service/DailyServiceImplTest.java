@@ -8,12 +8,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import practice.project.todo_list.dao.DailyDao;
+import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.dto.DailyTitleDTO;
+import practice.project.todo_list.dto.PostDailyDTO;
+import practice.project.todo_list.global.error.code.DailyErrorCode;
+import practice.project.todo_list.global.error.exception.BusinessException;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,5 +56,55 @@ class DailyServiceImplTest {
 
         // then
         assertEquals(3, dailyList.size());
+    }
+
+    @Test
+    @DisplayName("데일리 생성 성공 - 데드라인 있음")
+    void postDailySuccess() {
+        // given
+        doReturn(1)
+                .when(dailyDao).create(any(Daily.class));
+        PostDailyDTO dto = PostDailyDTO.builder()
+                .title("test 1")
+                .content("content 1")
+                .deadline(LocalDate.now())
+                .build();
+
+        // when
+        // then
+        assertDoesNotThrow(() -> dailyService.postDaily(dto));
+    }
+
+    @Test
+    @DisplayName("데일리 생성 성공 - 데드라인 없음")
+    void postDailySuccessNoDeadline() {
+        // given
+        doReturn(1)
+                .when(dailyDao).create(any(Daily.class));
+        PostDailyDTO dto = PostDailyDTO.builder()
+                .title("test 1")
+                .content("content 1")
+                .build();
+
+        // when
+        // then
+        assertDoesNotThrow(() -> dailyService.postDaily(dto));
+    }
+
+    @Test
+    @DisplayName("데일리 생성 실패 - 데드라인이 현재보다 빠름")
+    void postDailyFailureDeadlineIsPast() {
+        // given
+        PostDailyDTO dto = PostDailyDTO.builder()
+                .title("test 1")
+                .content("content 1")
+                .deadline(LocalDate.now().minusDays(1L))
+                .build();
+
+        // when
+        BusinessException ex = assertThrows(BusinessException.class, () -> dailyService.postDaily(dto));
+
+        // then
+        assertEquals(DailyErrorCode.DAILY_DEADLINE_PAST, ex.getErrorCode());
     }
 }

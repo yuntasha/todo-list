@@ -33,35 +33,35 @@ class DailyDaoImplTest {
             Daily.builder()
                     .title("제목 1")
                     .content("내용 1")
-                    .deadLine(LocalDate.of(2020, 3, 1))
+                    .deadline(LocalDate.of(2020, 3, 1))
                     .createAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .updateAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .build(),
             Daily.builder()
                     .title("제목 2")
                     .content("내용 2")
-                    .deadLine(LocalDate.of(2020, 3, 1))
+                    .deadline(LocalDate.of(2020, 3, 1))
                     .createAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .updateAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .build(),
             Daily.builder()
                     .title("제목 3")
                     .content("내용 3")
-                    .deadLine(LocalDate.of(2020, 3, 30))
+                    .deadline(LocalDate.of(2020, 3, 30))
                     .createAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .updateAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .build(),
             Daily.builder()
                     .title("제목 4")
                     .content("내용 4")
-                    .deadLine(LocalDate.MAX)
+                    .deadline(LocalDate.MAX)
                     .createAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .updateAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .build(),
             Daily.builder()
                     .title("제목 5")
                     .content("내용 5")
-                    .deadLine(LocalDate.MAX)
+                    .deadline(LocalDate.MAX)
                     .createAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .updateAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                     .build()
@@ -84,7 +84,7 @@ class DailyDaoImplTest {
                 for (Daily daily : testData) {
                     pstmt.setString(1, daily.getTitle());
                     pstmt.setString(2, daily.getContent());
-                    pstmt.setDate(3, Date.valueOf(daily.getDeadLine()));
+                    pstmt.setDate(3, Date.valueOf(daily.getDeadline()));
                     pstmt.setTimestamp(4, Timestamp.valueOf(daily.getCreateAt()));
                     pstmt.setTimestamp(5, Timestamp.valueOf(daily.getUpdateAt()));
                     pstmt.addBatch();
@@ -107,15 +107,25 @@ class DailyDaoImplTest {
     }
 
     @Test
-    @DisplayName("데일리 생성 성공 - ")
+    @DisplayName("데일리 생성 성공")
     void dailyCreateSuccess() {
         // given
-        DailyCreateDTO dto = new DailyCreateDTO("테스트 1", "내용 1", LocalDate.MAX);
+        LocalDateTime now = LocalDateTime.now();
+        Daily daily = Daily.builder()
+                .title("테스트 1")
+                .content("테스트 2")
+                .deadline(LocalDate.now())
+                .createAt(now)
+                .updateAt(now)
+                .build();
 
         // when
-        int id = dailyDao.create(dto);
+        int id = dailyDao.create(daily);
+        DailyTitleDTO dailyTitleDTO = dailyDao.findAll().get(5);
 
         // then
+        assertEquals(6, id);
+        assertEquals("테스트 1", dailyTitleDTO.getTitle());
     }
 
     @AfterAll

@@ -1,13 +1,14 @@
 package practice.project.todo_list.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import practice.project.todo_list.domain.Daily;
-import practice.project.todo_list.dto.DailyCreateDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
-import practice.project.todo_list.dto.TodoTitleDto;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -22,8 +23,18 @@ public class DailyDaoImpl implements DailyDao {
     }
 
     @Override
-    public int create(DailyCreateDTO dailyCreateDTO) {
-        return 0;
+    public int create(Daily daily) {
+        String sql = "INSERT INTO daily(title, content, deadline, create_at, update_at) " +
+                "VALUES(:title, :content, :deadline, :createAt, :updateAt)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        SqlParameterSource parameter = new BeanPropertySqlParameterSource(daily);
+
+
+        jdbcTemplate.update(sql, parameter, keyHolder);
+
+        return keyHolder.getKey().intValue();
     }
 
     @Override

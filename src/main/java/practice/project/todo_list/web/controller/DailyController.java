@@ -1,13 +1,14 @@
 package practice.project.todo_list.web.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.response.SuccessResponseDto;
 import practice.project.todo_list.service.DailyService;
 import practice.project.todo_list.web.dto.GetDailyListResponseDTO;
+import practice.project.todo_list.web.dto.PostDailyReqestDTO;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,5 +20,11 @@ public class DailyController {
     @GetMapping()
     public SuccessResponseDto<GetDailyListResponseDTO> getDailyList() {
         return SuccessResponseDto.success(new GetDailyListResponseDTO(dailyService.getDailyList()));
+    }
+
+    @PostMapping()
+    public SuccessResponseDto<Object> postDaily(@Valid @RequestBody PostDailyReqestDTO postDailyReqestDTO) {
+        dailyService.postDaily(PostDailyDTO.from(postDailyReqestDTO));
+        return SuccessResponseDto.success();
     }
 }
