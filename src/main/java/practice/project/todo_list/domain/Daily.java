@@ -11,6 +11,7 @@ import java.util.Objects;
 @Getter
 @Builder
 public class Daily {
+    private int id;
     private String title;
     private String content;
     private LocalDate deadline;

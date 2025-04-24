@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.FieldError;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import practice.project.todo_list.global.error.code.ErrorCode;
 
 import java.util.ArrayList;
@@ -53,6 +54,13 @@ public class ErrorResponseDto extends BaseResponseDto {
             return ValidationError.builder()
                     .field(path[path.length - 1])
                     .message(c.getMessage())
+                    .build();
+        }
+
+        public static ValidationError of(MethodArgumentTypeMismatchException ex) {
+            return ValidationError.builder()
+                    .field(ex.getName())
+                    .message(ex.getMessage())
                     .build();
         }
     }

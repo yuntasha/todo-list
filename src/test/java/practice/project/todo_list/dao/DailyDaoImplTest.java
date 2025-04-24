@@ -16,6 +16,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +72,7 @@ class DailyDaoImplTest {
     void init() throws SQLException {
         try (Connection conn = dataSource.getConnection()) {
             conn.createStatement().execute("CREATE TABLE daily (\n" +
-                    "  id INT PRIMARY KEY AUTO_INCREMENT,\n" +
+                    "  id INT AUTO_INCREMENT PRIMARY KEY,\n" +
                     "  title VARCHAR(20) NOT NULL,\n" +
                     "  content VARCHAR(200),\n" +
                     "  deadline DATE NOT NULL,\n" +
@@ -126,6 +127,32 @@ class DailyDaoImplTest {
         // then
         assertEquals(6, id);
         assertEquals("테스트 1", dailyTitleDTO.getTitle());
+    }
+
+    @Test
+    @DisplayName("데일리 아이디 조회 성공")
+    void dailyFindByIdSuccess() {
+        // given
+        int id = 1;
+
+        // when
+        Daily daily = assertDoesNotThrow(() -> dailyDao.findById(id).get());
+
+        // then
+        assertEquals(id, daily.getId());
+    }
+
+    @Test
+    @DisplayName("데일리 아이디 조회 실패 - 존재하지 않는 id")
+    void dailyFindByIdFailure() {
+        // given
+        int id = 10;
+
+        // when
+        Optional<Daily> daily = assertDoesNotThrow(() -> dailyDao.findById(id));
+
+        // then
+        assertTrue(daily.isEmpty());
     }
 
     @AfterAll

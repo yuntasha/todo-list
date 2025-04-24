@@ -17,14 +17,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import practice.project.todo_list.domain.Daily;
+import practice.project.todo_list.dto.DailyDetailDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
+import practice.project.todo_list.global.error.code.DailyErrorCode;
+import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.global.error.handler.GlobalExceptionHandler;
 import practice.project.todo_list.service.DailyService;
 import practice.project.todo_list.web.dto.PostDailyReqestDTO;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
@@ -32,8 +37,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -158,5 +162,103 @@ class DailyControllerTest {
                 Arguments.of(null, "content", LocalDate.now()), // 제목 null
                 Arguments.of("", "content", LocalDate.now()) // 제목 없음
         );
+    }
+
+    @Test
+    @DisplayName("데일리 상세정보 받기 성공 - content 있음")
+    void getDailyByIdSuccessWithContent() throws Exception {
+        // given
+        final String url = "/api/v1/daily/1/detail";
+        DailyDetailDTO dto = DailyDetailDTO.builder()
+                .id(1)
+                .title("title1")
+                .content("content1")
+                .deadline(LocalDate.of(2020,2, 2))
+                .createAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .updateAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .build();
+
+        doReturn(dto)
+                .when(dailyService)
+                .getDailyDetail(1);
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.id").value(1))
+                .andExpect(jsonPath("$.result.content").value(containsString("content1")));
+    }
+
+    @Test
+    @DisplayName("데일리 상세정보 받기 성공 - content 없음")
+    void getDailyByIdSuccessBlankContent() throws Exception {
+        // given
+        final String url = "/api/v1/daily/1/detail";
+        DailyDetailDTO dto = DailyDetailDTO.builder()
+                .id(1)
+                .title("title1")
+                .content("")
+                .deadline(LocalDate.of(2020,2, 2))
+                .createAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .updateAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .build();
+
+        doReturn(dto)
+                .when(dailyService)
+                .getDailyDetail(1);
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.id").value(1))
+                .andExpect(jsonPath("$.result.content").value(containsString("")));
+    }
+
+    @Test
+    @DisplayName("데일리 상세정보 받기 실패 - 존재하지 않는 ID")
+    void getDailyByIdFailureNotFound() throws Exception {
+        // given
+        final String url = "/api/v1/daily/1/detail";
+
+        doThrow(new BusinessException(DailyErrorCode.DAILY_NOT_FOUND))
+                .when(dailyService)
+                .getDailyDetail(1);
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(containsString("해당 id를 가진 daily가 존재하지 않습니다.")));
+    }
+
+    @Test
+    @DisplayName("데일리 상세정보 받기 실패 - 아이디가 양수가 아님")
+    void getDailyByIdFailureNotPositive() throws Exception {
+        // given
+        final String url = "/api/v1/daily/abcd/detail";
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(containsString("COMMON-002")));
     }
 }

@@ -9,13 +9,16 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import practice.project.todo_list.dao.DailyDao;
 import practice.project.todo_list.domain.Daily;
+import practice.project.todo_list.dto.DailyDetailDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.error.code.DailyErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -106,5 +109,69 @@ class DailyServiceImplTest {
 
         // then
         assertEquals(DailyErrorCode.DAILY_DEADLINE_PAST, ex.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("데일리 id 기반 조회 성공")
+    void findDailyById() {
+        // given
+        int id = 1;
+        Daily daily = Daily.builder()
+                .id(1)
+                .title("title1")
+                .content("content1")
+                .deadline(LocalDate.of(2020,2, 2))
+                .createAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .updateAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .build();
+        doReturn(Optional.of(daily))
+                .when(dailyDao).findById(id);
+
+        // when
+        DailyDetailDTO dto = dailyService.getDailyDetail(id);
+
+        // then
+        assertEquals(1, dto.getId());
+        assertEquals("title1", dto.getTitle());
+        assertEquals("content1", dto.getContent());
+    }
+
+    @Test
+    @DisplayName("데일리 id 기반 조회 성공 - content is null")
+    void findDailyByIdContentNull() {
+        // given
+        int id = 1;
+        Daily daily = Daily.builder()
+                .id(1)
+                .title("title1")
+                .deadline(LocalDate.of(2020,2, 2))
+                .createAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .updateAt(LocalDateTime.of(2020,2,2,2,2,2))
+                .build();
+        doReturn(Optional.of(daily))
+                .when(dailyDao).findById(id);
+
+        // when
+        DailyDetailDTO dto = dailyService.getDailyDetail(id);
+
+        // then
+        assertEquals(1, dto.getId());
+        assertEquals("title1", dto.getTitle());
+        assertTrue(dto.getContent().isBlank());
+    }
+    
+    @Test
+    @DisplayName("데일리 id 기반 조회 실패 - 존재하지 않는 id")
+    void findDailyByIdNotFoundFailure() {
+        // given
+        int id = 100;
+        doReturn(Optional.empty())
+                .when(dailyDao).findById(id);
+        
+        // when
+        BusinessException ex = assertThrows(BusinessException.class, () -> dailyService.getDailyDetail(id));
+
+        // then
+        assertEquals(DailyErrorCode.DAILY_NOT_FOUND, ex.getErrorCode());
     }
 }

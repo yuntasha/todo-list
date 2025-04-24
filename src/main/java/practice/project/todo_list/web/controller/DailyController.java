@@ -1,9 +1,11 @@
 package practice.project.todo_list.web.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import practice.project.todo_list.dto.DailyDetailDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.response.SuccessResponseDto;
 import practice.project.todo_list.service.DailyService;
@@ -26,5 +28,10 @@ public class DailyController {
     public SuccessResponseDto<Object> postDaily(@Valid @RequestBody PostDailyReqestDTO postDailyReqestDTO) {
         dailyService.postDaily(PostDailyDTO.from(postDailyReqestDTO));
         return SuccessResponseDto.success();
+    }
+
+    @GetMapping("{id}/detail")
+    public SuccessResponseDto<DailyDetailDTO> getDailyById(@Positive @PathVariable int id) {
+        return SuccessResponseDto.success(dailyService.getDailyDetail(id));
     }
 }

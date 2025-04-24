@@ -1,5 +1,6 @@
 package practice.project.todo_list.dao;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -11,7 +12,10 @@ import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.dto.DailyTitleDTO;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class DailyDaoImpl implements DailyDao {
@@ -51,6 +55,33 @@ public class DailyDaoImpl implements DailyDao {
                 .id(rs.getInt("id"))
                 .title(rs.getString("title"))
                 .deadline(rs.getDate("deadline").toLocalDate())
+                .build();
+    };
+
+    public Optional<Daily> findById(int id) {
+        String sql = "SELECT * " +
+                "FROM daily " +
+                "WHERE id = :id";
+
+        Map<String, Object> parameter = new HashMap<>();
+
+        parameter.put("id", id);
+
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(sql, parameter, dailyMapper));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    private RowMapper<Daily> dailyMapper = (rs, idx) -> {
+        return Daily.builder()
+                .id(rs.getInt("id"))
+                .title(rs.getString("title"))
+                .content(rs.getString("content"))
+                .deadline(rs.getDate("deadline").toLocalDate())
+                .createAt(rs.getTimestamp("create_at").toLocalDateTime())
+                .updateAt(rs.getTimestamp("update_at").toLocalDateTime())
                 .build();
     };
 }

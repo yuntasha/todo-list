@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import practice.project.todo_list.dao.DailyDao;
 import practice.project.todo_list.domain.Daily;
+import practice.project.todo_list.dto.DailyDetailDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.error.code.DailyErrorCode;
@@ -31,5 +32,10 @@ public class DailyServiceImpl implements DailyService {
         }
 
         dailyDao.create(daily);
+    }
+
+    @Override
+    public DailyDetailDTO getDailyDetail(int id) {
+        return DailyDetailDTO.from(dailyDao.findById(id).orElseThrow(() -> new BusinessException(DailyErrorCode.DAILY_NOT_FOUND)));
     }
 }

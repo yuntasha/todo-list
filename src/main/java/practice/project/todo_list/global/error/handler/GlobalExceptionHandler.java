@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import practice.project.todo_list.global.error.code.CommonErrorCode;
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         return createResponseEntity(CommonErrorCode.NOT_VALID_ERROR, convertMessage(ex.getMessage()));
+    }
+
+    // PathVariable 변환 실패시 나오는 에러
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        return createResponseEntity(ex, CommonErrorCode.NOT_VALID_ERROR);
     }
 
     private String convertMessage(String message) {
@@ -132,10 +139,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDto(errorCode, convertValidateError(ex)));
     }
 
+    private ResponseEntity<Object> createResponseEntity(MethodArgumentTypeMismatchException ex, ErrorCode errorCode) {
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(new ErrorResponseDto(errorCode, convertValidateError(ex)));
+    }
+
     private List<ErrorResponseDto.ValidationError> convertValidateError(ConstraintViolationException ex) {
         return ex.getConstraintViolations()
                 .stream()
                 .map(ErrorResponseDto.ValidationError::of)
                 .toList();
+    }
+
+    private List<ErrorResponseDto.ValidationError> convertValidateError(MethodArgumentTypeMismatchException ex) {
+        return List.of(ErrorResponseDto.ValidationError.of(ex));
     }
 }
