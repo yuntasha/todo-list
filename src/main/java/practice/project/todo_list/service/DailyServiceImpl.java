@@ -38,4 +38,13 @@ public class DailyServiceImpl implements DailyService {
     public DailyDetailDTO getDailyDetail(int id) {
         return DailyDetailDTO.from(dailyDao.findById(id).orElseThrow(() -> new BusinessException(DailyErrorCode.DAILY_NOT_FOUND)));
     }
+
+    @Override
+    public void deleteDaily(int id) {
+        int count = dailyDao.deleteById(id);
+
+        if (count == 0) {
+            throw new BusinessException(DailyErrorCode.DAILY_NOT_FOUND);
+        }
+    }
 }

@@ -84,4 +84,17 @@ public class DailyDaoImpl implements DailyDao {
                 .updateAt(rs.getTimestamp("update_at").toLocalDateTime())
                 .build();
     };
+
+    @Override
+    public int deleteById(int id) {
+        String sql = "DELETE " +
+                "FROM daily " +
+                "WHERE id = :id";
+
+        Map<String, Object> parameter = new HashMap<>();
+
+        parameter.put("id", id);
+
+        return jdbcTemplate.update(sql, parameter);
+    }
 }

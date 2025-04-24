@@ -10,4 +10,5 @@ public interface DailyService {
     List<DailyTitleDTO> getDailyList();
     void postDaily(PostDailyDTO postDailyDTO);
     DailyDetailDTO getDailyDetail(int id);
+    void deleteDaily(int id);
 }

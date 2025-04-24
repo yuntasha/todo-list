@@ -155,6 +155,36 @@ class DailyDaoImplTest {
         assertTrue(daily.isEmpty());
     }
 
+    @Test
+    @DisplayName("데일리 삭제 성공")
+    void dailyDeleteById() {
+        // given
+        int id = 1;
+
+        // when
+        int count = dailyDao.deleteById(id);
+        List<DailyTitleDTO> list = dailyDao.findAll();
+
+        // then
+        assertEquals(1, count);
+        assertEquals(4, list.size());
+    }
+
+    @Test
+    @DisplayName("데일리 삭제 실패 - 존재하지 않는 아이디")
+    void dailyDeleteByIdNotFound() {
+        // given
+        int id = 10;
+
+        // when
+        int count = dailyDao.deleteById(id);
+        List<DailyTitleDTO> list = dailyDao.findAll();
+
+        // then
+        assertEquals(0, count);
+        assertEquals(5, list.size());
+    }
+
     @AfterAll
     void end() throws SQLException {
         try (Connection conn = dataSource.getConnection()) {

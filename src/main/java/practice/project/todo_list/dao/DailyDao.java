@@ -11,4 +11,5 @@ public interface DailyDao {
     int create(Daily daily);
     List<DailyTitleDTO> findAll();
     Optional<Daily> findById(int id);
+    int deleteById(int id);
 }

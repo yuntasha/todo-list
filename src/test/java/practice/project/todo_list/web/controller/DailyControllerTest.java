@@ -261,4 +261,40 @@ class DailyControllerTest {
         result.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(containsString("COMMON-002")));
     }
+
+    @Test
+    @DisplayName("데일리 삭제 성공")
+    void deleteDailyByIdSuccess() throws Exception {
+        // given
+        final String url = "/api/v1/daily/1";
+        doNothing().when(dailyService).deleteDaily(1);
+
+        // when
+        final ResultActions result = mockMvc.perform((
+                MockMvcRequestBuilders.delete(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                ));
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("데일리 삭제 실패 - 아이디 존재하지 않음")
+    void deleteDailyByIdFailureNotFound() throws Exception {
+        // given
+        final String url = "/api/v1/daily/100";
+        doThrow(new BusinessException(DailyErrorCode.DAILY_NOT_FOUND))
+                .when(dailyService).deleteDaily(100);
+
+        // when
+        final ResultActions result = mockMvc.perform((
+                MockMvcRequestBuilders.delete(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ));
+
+        // then
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(containsString("DAILY-002")));
+    }
 }

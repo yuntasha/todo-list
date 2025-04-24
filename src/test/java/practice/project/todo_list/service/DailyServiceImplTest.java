@@ -174,4 +174,32 @@ class DailyServiceImplTest {
         // then
         assertEquals(DailyErrorCode.DAILY_NOT_FOUND, ex.getErrorCode());
     }
+
+    @Test
+    @DisplayName("데일리 id 기반 삭제 성공")
+    void deleteDailySuccessful() {
+        // given
+        int id = 1;
+        doReturn(1)
+                .when(dailyDao).deleteById(id);
+
+        // when
+        // then
+        assertDoesNotThrow(() -> dailyService.deleteDaily(id));
+    }
+
+    @Test
+    @DisplayName("데일리 id 기반 삭제 실패 - 존재하지 않는 아이디")
+    void deleteDailyFailureIdNotFound() {
+        // given
+        int id = 1;
+        doReturn(0)
+                .when(dailyDao).deleteById(id);
+
+        // when
+        BusinessException ex = assertThrows(BusinessException.class, () -> dailyService.deleteDaily(id));
+
+        // then
+        assertEquals(DailyErrorCode.DAILY_NOT_FOUND, ex.getErrorCode());
+    }
 }

@@ -34,4 +34,10 @@ public class DailyController {
     public SuccessResponseDto<DailyDetailDTO> getDailyById(@Positive @PathVariable int id) {
         return SuccessResponseDto.success(dailyService.getDailyDetail(id));
     }
+
+    @DeleteMapping("{id}")
+    public SuccessResponseDto<Object> deleteDailyById(@Positive @PathVariable int id) {
+        dailyService.deleteDaily(id);
+        return SuccessResponseDto.success();
+    }
 }
