@@ -1,6 +1,7 @@
 package practice.project.todo_list.service;
 
 import practice.project.todo_list.dto.DailyDetailDTO;
+import practice.project.todo_list.dto.DailyModifyDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 
@@ -11,4 +12,5 @@ public interface DailyService {
     void postDaily(PostDailyDTO postDailyDTO);
     DailyDetailDTO getDailyDetail(int id);
     void deleteDaily(int id);
+    void update(DailyModifyDTO dailyModifyDTO);
 }

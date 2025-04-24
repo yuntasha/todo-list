@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import practice.project.todo_list.dao.DailyDao;
 import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.dto.DailyDetailDTO;
+import practice.project.todo_list.dto.DailyModifyDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.error.code.DailyErrorCode;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class DailyServiceImplTest {
@@ -198,6 +200,46 @@ class DailyServiceImplTest {
 
         // when
         BusinessException ex = assertThrows(BusinessException.class, () -> dailyService.deleteDaily(id));
+
+        // then
+        assertEquals(DailyErrorCode.DAILY_NOT_FOUND, ex.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("데일리 id 기반 수정 성공")
+    void updateDailySuccessful() {
+        // given
+        DailyModifyDTO dto = DailyModifyDTO.builder()
+                        .id(1)
+                        .title("title")
+                        .content("content")
+                        .deadline(LocalDate.of(2020, 2, 2))
+                        .build();
+
+        doReturn(1)
+                .when(dailyDao).modify(any(Daily.class));
+
+        // when
+        // then
+        assertDoesNotThrow(() -> dailyService.update(dto));
+    }
+
+    @Test
+    @DisplayName("데일리 id 기반 수정 실패 - 존재하지 않은 아이디")
+    void updateDailyFailureNotFound() {
+        // given
+        DailyModifyDTO dto = DailyModifyDTO.builder()
+                .id(10)
+                .title("title")
+                .content("content")
+                .deadline(LocalDate.of(2020, 2, 2))
+                .build();
+
+        doThrow(new BusinessException(DailyErrorCode.DAILY_NOT_FOUND))
+                .when(dailyDao).modify(any(Daily.class));
+
+        // when
+        BusinessException ex = assertThrows(BusinessException.class, () -> dailyService.update(dto));
 
         // then
         assertEquals(DailyErrorCode.DAILY_NOT_FOUND, ex.getErrorCode());

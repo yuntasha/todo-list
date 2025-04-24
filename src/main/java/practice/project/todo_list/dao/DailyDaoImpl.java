@@ -12,6 +12,7 @@ import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.dto.DailyTitleDTO;
 
 import javax.sql.DataSource;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,23 @@ public class DailyDaoImpl implements DailyDao {
         Map<String, Object> parameter = new HashMap<>();
 
         parameter.put("id", id);
+
+        return jdbcTemplate.update(sql, parameter);
+    }
+
+    @Override
+    public int modify(Daily daily) {
+        String sql = "UPDATE daily " +
+                "SET title = :title, content = :content, deadline = :deadline, update_at = :updateAt " +
+                "WHERE id = :id";
+
+        Map<String, Object> parameter = new HashMap<>();
+
+        parameter.put("id", daily.getId());
+        parameter.put("title", daily.getTitle());
+        parameter.put("content", daily.getContent());
+        parameter.put("deadline", daily.getDeadline());
+        parameter.put("updateAt", LocalDateTime.now());
 
         return jdbcTemplate.update(sql, parameter);
     }

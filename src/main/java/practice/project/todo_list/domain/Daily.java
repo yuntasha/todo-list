@@ -2,6 +2,7 @@ package practice.project.todo_list.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import practice.project.todo_list.dto.DailyModifyDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 
 import java.time.LocalDate;
@@ -25,6 +26,15 @@ public class Daily {
                 .deadline(convertLocalDate(postDailyDTO.getDeadline()))
                 .createAt(LocalDateTime.now())
                 .updateAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static Daily from(DailyModifyDTO dto) {
+        return Daily.builder()
+                .id(dto.getId())
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .deadline(convertLocalDate(dto.getDeadline()))
                 .build();
     }
 

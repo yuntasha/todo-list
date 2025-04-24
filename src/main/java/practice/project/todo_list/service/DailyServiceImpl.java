@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import practice.project.todo_list.dao.DailyDao;
 import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.dto.DailyDetailDTO;
+import practice.project.todo_list.dto.DailyModifyDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.error.code.DailyErrorCode;
@@ -43,6 +44,14 @@ public class DailyServiceImpl implements DailyService {
     public void deleteDaily(int id) {
         int count = dailyDao.deleteById(id);
 
+        if (count == 0) {
+            throw new BusinessException(DailyErrorCode.DAILY_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void update(DailyModifyDTO dailyModifyDTO) {
+        int count = dailyDao.modify(Daily.from(dailyModifyDTO));
         if (count == 0) {
             throw new BusinessException(DailyErrorCode.DAILY_NOT_FOUND);
         }

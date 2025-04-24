@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import practice.project.todo_list.dto.DailyDetailDTO;
+import practice.project.todo_list.dto.DailyModifyDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.response.SuccessResponseDto;
 import practice.project.todo_list.service.DailyService;
 import practice.project.todo_list.web.dto.GetDailyListResponseDTO;
 import practice.project.todo_list.web.dto.PostDailyReqestDTO;
+import practice.project.todo_list.web.dto.PutDailyRequestDTO;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,6 +40,13 @@ public class DailyController {
     @DeleteMapping("{id}")
     public SuccessResponseDto<Object> deleteDailyById(@Positive @PathVariable int id) {
         dailyService.deleteDaily(id);
+        return SuccessResponseDto.success();
+    }
+
+    @PutMapping("{id}")
+    public SuccessResponseDto<Object> putDailyById(@Positive @PathVariable int id,
+                                                   @Valid @RequestBody PutDailyRequestDTO putDailyRequestDTO) {
+        dailyService.update(DailyModifyDTO.of(id, putDailyRequestDTO));
         return SuccessResponseDto.success();
     }
 }

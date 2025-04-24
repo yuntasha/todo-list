@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.dto.DailyDetailDTO;
+import practice.project.todo_list.dto.DailyModifyDTO;
 import practice.project.todo_list.dto.DailyTitleDTO;
 import practice.project.todo_list.dto.PostDailyDTO;
 import practice.project.todo_list.global.error.code.DailyErrorCode;
@@ -26,6 +27,7 @@ import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.global.error.handler.GlobalExceptionHandler;
 import practice.project.todo_list.service.DailyService;
 import practice.project.todo_list.web.dto.PostDailyReqestDTO;
+import practice.project.todo_list.web.dto.PutDailyRequestDTO;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -291,6 +293,49 @@ class DailyControllerTest {
         final ResultActions result = mockMvc.perform((
                 MockMvcRequestBuilders.delete(url)
                         .contentType(MediaType.APPLICATION_JSON)
+        ));
+
+        // then
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(containsString("DAILY-002")));
+    }
+
+    @Test
+    @DisplayName("데일리 수정 실패 - 존재하지 않은 id")
+    void putDailyById() throws Exception {
+        // given
+        final String url = "/api/v1/daily/1";
+        final PutDailyRequestDTO body = new PutDailyRequestDTO("title", "content", LocalDate.of(2020, 12, 12));
+
+        doNothing()
+                .when(dailyService).update(any(DailyModifyDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform((
+                MockMvcRequestBuilders.put(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(body))
+        ));
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("데일리 수정 실패 - 존재하지 않은 id")
+    void putDailyByIdFailureNotFound() throws Exception {
+        // given
+        final String url = "/api/v1/daily/100";
+        final PutDailyRequestDTO body = new PutDailyRequestDTO("title", "content", LocalDate.of(2020, 12, 12));
+
+        doThrow(new BusinessException(DailyErrorCode.DAILY_NOT_FOUND))
+                        .when(dailyService).update(any(DailyModifyDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform((
+                MockMvcRequestBuilders.put(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(body))
         ));
 
         // then

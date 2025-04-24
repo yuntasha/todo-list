@@ -172,7 +172,7 @@ class DailyDaoImplTest {
 
     @Test
     @DisplayName("데일리 삭제 실패 - 존재하지 않는 아이디")
-    void dailyDeleteByIdNotFound() {
+    void dailyDeleteByIdFailureNotFound() {
         // given
         int id = 10;
 
@@ -183,6 +183,56 @@ class DailyDaoImplTest {
         // then
         assertEquals(0, count);
         assertEquals(5, list.size());
+    }
+    
+    @Test
+    @DisplayName("데일리 수정 성공")
+    void setDailyByIdSuccess() {
+        // given
+        int id = 1;
+        String title = "수정 제목";
+        String content = "수정 내용";
+        LocalDate deadline = LocalDate.of(2020, 2, 2);
+        Daily daily = Daily.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .deadline(deadline)
+                .build();
+        
+        // when
+        int count = dailyDao.modify(daily);
+
+        // then
+        assertEquals(1, count);
+
+        Daily after = assertDoesNotThrow(() -> dailyDao.findById(id).get());
+
+        assertEquals(title, after.getTitle());
+        assertEquals(content, after.getContent());
+        assertEquals(deadline, after.getDeadline());
+    }
+
+    @Test
+    @DisplayName("데일리 수정 실패 - 존재하지 않는 id")
+    void setDailyByIdFailureNotFound() {
+        // given
+        int id = 10;
+        String title = "수정 제목";
+        String content = "수정 내용";
+        LocalDate deadline = LocalDate.of(2020, 2, 2);
+        Daily daily = Daily.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .deadline(deadline)
+                .build();
+
+        // when
+        int count = assertDoesNotThrow(() -> dailyDao.modify(daily));
+
+        // then
+        assertEquals(0, count);
     }
 
     @AfterAll
