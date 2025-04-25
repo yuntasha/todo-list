@@ -15,4 +15,5 @@ public interface TodoService {
     List<TodoDeleteTitleDto> getDeleteTodo();
     int restoreTodo(int id);
     void updateTodo(TodoUpdateDto todoUpdateDto);
+    int deleteTodoInTrash();
 }

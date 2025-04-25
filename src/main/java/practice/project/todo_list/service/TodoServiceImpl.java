@@ -9,6 +9,7 @@ import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -75,5 +76,10 @@ public class TodoServiceImpl implements TodoService {
         if (todoDao.updateTodo(todoUpdateDto) == 0) {
             throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
         }
+    }
+
+    @Override
+    public int deleteTodoInTrash() {
+        return todoDao.deleteBefore(LocalDate.now().minusMonths(1L));
     }
 }

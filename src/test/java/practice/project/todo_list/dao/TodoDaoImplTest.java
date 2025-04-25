@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -284,6 +285,27 @@ class TodoDaoImplTest {
 
         // then
         assertEquals(0, count);
+    }
+
+    @Test
+    @DisplayName("특정 시점 이후 지워진 데이터 삭제")
+    void deleteTodo() {
+        // given
+        int id = 1;
+        int normalState = 0;
+        int deleteState = 1;
+        LocalDate now = LocalDate.now();
+
+        // when
+        todoDao.setDeleteStateById(id, deleteState, normalState);
+        int deleteCount = todoDao.deleteBefore(now.plusMonths(1L));
+        List<TodoTitleDto> list = todoDao.findAll();
+        int isRestore = todoDao.setDeleteStateById(id, normalState, deleteState);
+
+        // then
+        assertEquals(0, isRestore);
+        assertEquals(1, deleteCount);
+        assertEquals(4, list.size());
     }
 
     @AfterAll

@@ -13,6 +13,7 @@ import practice.project.todo_list.dto.*;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -52,7 +53,9 @@ public class TodoDaoImpl implements TodoDao {
                 "FROM " +
                 "todo " +
                 "WHERE " +
-                "state = :state";
+                "state = :state " +
+                "AND " +
+                "delete_state = 0";
 
 
         return jdbcTemplate.query(sql, map, todoTitleMapper);
@@ -122,18 +125,6 @@ public class TodoDaoImpl implements TodoDao {
         return jdbcTemplate.update(sql, map);
     }
 
-    @Override
-    public void deleteByLocalDate(LocalDateTime now) {
-        String sql = "DELETE todo " +
-                "WHERE DATE(update_at) < :deadLine";
-
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("deadLine", now.minusMonths(1L));
-
-        jdbcTemplate.update(sql, map);
-    }
-
     private RowMapper<TodoDetailDto> todoDetailMapper = (rs, idx) -> {
         return TodoDetailDto.builder()
                 .id(rs.getInt("id"))
@@ -156,7 +147,8 @@ public class TodoDaoImpl implements TodoDao {
                 "FROM " +
                 "todo " +
                 "WHERE update_at " +
-                "BETWEEN :start AND :end";
+                "BETWEEN :start AND :end " +
+                "AND delete_state = 0";
 
 
         return jdbcTemplate.query(sql, map, todoTitleMapper);
@@ -200,16 +192,27 @@ public class TodoDaoImpl implements TodoDao {
 
     @Override
     public int updateTodo(TodoUpdateDto todoUpdateDto) {
+        String sql = "UPDATE " +
+                "todo " +
+                "SET title = :title, content = :content, update_at = :update_at " +
+                "WHERE id = :id AND delete_state = 0";
+
         Map<String, Object> map = new HashMap<>();
         map.put("id", todoUpdateDto.getId());
         map.put("title", todoUpdateDto.getTitle());
         map.put("content", todoUpdateDto.getContent());
         map.put("update_at", LocalDateTime.now());
 
-        String sql = "UPDATE " +
-                "todo " +
-                "SET title = :title, content = :content, update_at = :update_at " +
-                "WHERE id = :id AND delete_state = 0";
+        return jdbcTemplate.update(sql, map);
+    }
+
+    @Override
+    public int deleteBefore(LocalDate cutLine) {
+        String sql = "DELETE FROM todo " +
+                "WHERE update_at <= :cutLine AND delete_state = 1";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("cutLine", cutLine.atStartOfDay());
 
         return jdbcTemplate.update(sql, map);
     }
