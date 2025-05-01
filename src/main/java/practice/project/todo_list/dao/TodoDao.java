@@ -1,5 +1,6 @@
 package practice.project.todo_list.dao;
 
+import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.*;
 import practice.project.todo_list.web.dto.PostRequestDto;
 
@@ -9,14 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TodoDao {
-    List<TodoTitleDto> findAll();
-    List<TodoTitleDto> findByState(int state);
-    Optional<TodoDetailDto> findById(int id);
-    int postTodo(PostRequestDto postRequestDto);
+    List<Todo> findAll();
+    List<Todo> findByState(int state);
+    Optional<Todo> findById(int id);
+    int postTodo(Todo Todo);
     int setDeleteStateById(int id, int state, int nowState);
-    List<TodoTitleDto> findByPeriod(PeriodDto periodDto);
+    List<Todo> findByPeriod(LocalDate start, LocalDate end);
     int patchState(int id, int state);
-    List<TodoDeleteTitleDto> findDelete();
-    int updateTodo(TodoUpdateDto todoUpdateDto);
+    List<Todo> findDelete();
+    int updateTodo(Todo todo);
     int deleteBefore(LocalDate cutLine);
 }

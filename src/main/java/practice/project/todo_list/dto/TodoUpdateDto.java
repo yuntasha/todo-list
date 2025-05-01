@@ -3,6 +3,7 @@ package practice.project.todo_list.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.web.dto.PutRequestDTO;
 
 @Getter
@@ -18,6 +19,14 @@ public class TodoUpdateDto {
                 .id(id)
                 .title(putRequestDTO.getTitle())
                 .content(putRequestDTO.getContent())
+                .build();
+    }
+
+    public Todo toEntity() {
+        return Todo.builder()
+                .id(id)
+                .title(title)
+                .content(content)
                 .build();
     }
 }

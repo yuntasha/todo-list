@@ -106,34 +106,37 @@ class TodoDaoImplTest {
     @Test
     void 전체_조회() {
         // when
-        List<TodoTitleDto> todos = todoDao.findAll();
+        List<Todo> todos = todoDao.findAll();
 
         // then
         assertEquals(5, todos.size());
     }
 
-    @RepeatedTest(3)
+    @Test
     void 할일_추가() {
         //given
-        todoDao.postTodo(new PostRequestDto("테스트 1", "테스트 내용 1"));
-        todoDao.postTodo(new PostRequestDto("테스트 2", "테스트 내용 2"));
-        todoDao.postTodo(new PostRequestDto("테스트 3", "테스트 내용 3"));
-        todoDao.postTodo(new PostRequestDto("테스트 4", "테스트 내용 4"));
-        todoDao.postTodo(new PostRequestDto("테스트 5", "테스트 내용 5"));
+        todoDao.postTodo(Todo.builder()
+                .title("테스트 2")
+                .content("테스트 내용 2")
+                .state(0)
+                .deleteState(0)
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
+                .build());
 
         // when
-        List<TodoTitleDto> todos = todoDao.findAll();
+        List<Todo> todos = todoDao.findAll();
 
         // then
-        assertEquals(10, todos.size());
+        assertEquals(6, todos.size());
     }
 
     @Test
     void 상태_조회() {
         // when
-        List<TodoTitleDto> ready = todoDao.findByState(0);
-        List<TodoTitleDto> progress = todoDao.findByState(1);
-        List<TodoTitleDto> done = todoDao.findByState(2);
+        List<Todo> ready = todoDao.findByState(0);
+        List<Todo> progress = todoDao.findByState(1);
+        List<Todo> done = todoDao.findByState(2);
 
         // then
         assertEquals(1, ready.size());
@@ -146,10 +149,9 @@ class TodoDaoImplTest {
         // given
         LocalDate start = LocalDate.of(2025, 3, 28);
         LocalDate end = LocalDate.of(2025, 3, 30);
-        PeriodDto periodDto = new PeriodDto(start, end);
 
         // when
-        List<TodoTitleDto> todos = todoDao.findByPeriod(periodDto);
+        List<Todo> todos = todoDao.findByPeriod(start, end);
 
         // then
         assertEquals(3, todos.size());
@@ -160,10 +162,9 @@ class TodoDaoImplTest {
         // given
         LocalDate start = LocalDate.of(2025, 1, 28);
         LocalDate end = LocalDate.of(2025, 1, 30);
-        PeriodDto periodDto = new PeriodDto(start, end);
 
         // when
-        List<TodoTitleDto> todos = todoDao.findByPeriod(periodDto);
+        List<Todo> todos = todoDao.findByPeriod(start, end);
 
         // then
         assertEquals(0, todos.size());
@@ -206,11 +207,11 @@ class TodoDaoImplTest {
 
         // when
         int count = todoDao.patchState(id, state);
-        TodoDetailDto todoDetailDto = assertDoesNotThrow(() -> todoDao.findById(id).orElseThrow());
+        Todo todoDto = assertDoesNotThrow(() -> todoDao.findById(id).orElseThrow());
 
         // then
         assertEquals(1, count);
-        assertEquals(state, todoDetailDto.getState());
+        assertEquals(state, todoDto.getState());
     }
 
     private static Stream<Arguments> parameterPatchState() {
@@ -225,7 +226,7 @@ class TodoDaoImplTest {
     void getDeleteTodoListEmpty() {
         // given
         // when
-        List<TodoDeleteTitleDto> delete = todoDao.findDelete();
+        List<Todo> delete = todoDao.findDelete();
 
         // then
         assertTrue(delete.isEmpty());
@@ -241,7 +242,7 @@ class TodoDaoImplTest {
         }
 
         // when
-        List<TodoDeleteTitleDto> delete = todoDao.findDelete();
+        List<Todo> delete = todoDao.findDelete();
 
         // then
         assertEquals(3, delete.size());
@@ -257,15 +258,20 @@ class TodoDaoImplTest {
         int id = 1;
         String title = "수정 제목 1";
         String content = "수정 내용 1";
-        TodoUpdateDto dto = new TodoUpdateDto(id, title, content);
+        Todo todoInput = Todo.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .updateAt(LocalDateTime.now())
+                .build();
 
         // when
-        int count = todoDao.updateTodo(dto);
-        Optional<TodoDetailDto> opTodo = todoDao.findById(id);
+        int count = todoDao.updateTodo(todoInput);
+        Optional<Todo> opTodo = todoDao.findById(id);
 
         // then
         assertEquals(1, count);
-        TodoDetailDto todo = assertDoesNotThrow(() -> opTodo.orElseThrow(Exception::new));
+        Todo todo = assertDoesNotThrow(() -> opTodo.orElseThrow(Exception::new));
         assertEquals(title, todo.getTitle());
         assertEquals(content, todo.getContent());
         assertEquals(LocalDate.now(), todo.getUpdateAt().toLocalDate());
@@ -278,10 +284,15 @@ class TodoDaoImplTest {
         int id = 20;
         String title = "수정 제목 1";
         String content = "수정 내용 1";
-        TodoUpdateDto dto = new TodoUpdateDto(id, title, content);
+        Todo todoInput = Todo.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .updateAt(LocalDateTime.now())
+                .build();
 
         // when
-        int count = todoDao.updateTodo(dto);
+        int count = todoDao.updateTodo(todoInput);
 
         // then
         assertEquals(0, count);
@@ -299,7 +310,7 @@ class TodoDaoImplTest {
         // when
         todoDao.setDeleteStateById(id, deleteState, normalState);
         int deleteCount = todoDao.deleteBefore(now.plusMonths(1L));
-        List<TodoTitleDto> list = todoDao.findAll();
+        List<Todo> list = todoDao.findAll();
         int isRestore = todoDao.setDeleteStateById(id, normalState, deleteState);
 
         // then

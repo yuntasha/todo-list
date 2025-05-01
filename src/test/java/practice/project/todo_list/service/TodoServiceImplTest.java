@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import practice.project.todo_list.dao.TodoDao;
 import practice.project.todo_list.dto.PatchStateDTO;
 import practice.project.todo_list.dto.PeriodDto;
-import practice.project.todo_list.dto.TodoTitleDto;
+import practice.project.todo_list.dto.TodoTitleDTO;
 import practice.project.todo_list.dto.TodoUpdateDto;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
@@ -38,14 +38,14 @@ class TodoServiceImplTest {
     @DisplayName("기간 검색 API 성공")
     void 기간_검색하기(LocalDate start, LocalDate end) {
         // given
-        doReturn(List.of(TodoTitleDto.builder().build(),
-                TodoTitleDto.builder().build(),
-                TodoTitleDto.builder().build()))
-                .when(todoDao).findByPeriod(any(PeriodDto.class));
+        doReturn(List.of(TodoTitleDTO.builder().build(),
+                TodoTitleDTO.builder().build(),
+                TodoTitleDTO.builder().build()))
+                .when(todoDao).findByPeriod(any(LocalDate.class), any(LocalDate.class));
         PeriodDto input = new PeriodDto(start, end);
 
         // when
-        List<TodoTitleDto> todoByPeriod = todoService.getTodoByPeriod(input);
+        List<TodoTitleDTO> todoByPeriod = todoService.getTodoByPeriod(input);
 
         // then
         assertEquals(3, todoByPeriod.size());

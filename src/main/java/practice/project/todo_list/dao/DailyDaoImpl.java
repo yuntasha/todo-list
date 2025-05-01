@@ -43,21 +43,12 @@ public class DailyDaoImpl implements DailyDao {
     }
 
     @Override
-    public List<DailyTitleDTO> findAll() {
-        String sql = "SELECT " +
-                "id, title, deadline " +
+    public List<Daily> findAll() {
+        String sql = "SELECT * " +
                 "FROM daily";
 
-        return jdbcTemplate.query(sql, dailyTitleDTORowMapper);
+        return jdbcTemplate.query(sql, dailyMapper);
     }
-
-    private RowMapper<DailyTitleDTO> dailyTitleDTORowMapper = (rs, idx) -> {
-        return DailyTitleDTO.builder()
-                .id(rs.getInt("id"))
-                .title(rs.getString("title"))
-                .deadline(rs.getDate("deadline").toLocalDate())
-                .build();
-    };
 
     public Optional<Daily> findById(int id) {
         String sql = "SELECT * " +

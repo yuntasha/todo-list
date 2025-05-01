@@ -100,7 +100,7 @@ class DailyDaoImplTest {
     void findDailySuccess() {
         // given
         // when
-        List<DailyTitleDTO> dailys = dailyDao.findAll();
+        List<Daily> dailys = dailyDao.findAll();
 
         // then
         assertEquals(5, dailys.size());
@@ -122,11 +122,11 @@ class DailyDaoImplTest {
 
         // when
         int id = dailyDao.create(daily);
-        DailyTitleDTO dailyTitleDTO = dailyDao.findAll().get(5);
+        Daily daily5 = dailyDao.findAll().get(5);
 
         // then
         assertEquals(6, id);
-        assertEquals("테스트 1", dailyTitleDTO.getTitle());
+        assertEquals("테스트 1", daily5.getTitle());
     }
 
     @Test
@@ -163,7 +163,7 @@ class DailyDaoImplTest {
 
         // when
         int count = dailyDao.deleteById(id);
-        List<DailyTitleDTO> list = dailyDao.findAll();
+        List<Daily> list = dailyDao.findAll();
 
         // then
         assertEquals(1, count);
@@ -178,7 +178,7 @@ class DailyDaoImplTest {
 
         // when
         int count = dailyDao.deleteById(id);
-        List<DailyTitleDTO> list = dailyDao.findAll();
+        List<Daily> list = dailyDao.findAll();
 
         // then
         assertEquals(0, count);

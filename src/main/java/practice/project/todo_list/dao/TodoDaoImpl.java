@@ -31,25 +31,23 @@ public class TodoDaoImpl implements TodoDao {
     }
 
     @Override
-    public List<TodoTitleDto> findAll() {
+    public List<Todo> findAll() {
 
-        String sql = "SELECT " +
-                "id, title, state, update_at " +
+        String sql = "SELECT * " +
                 "FROM " +
                 "todo " +
                 "WHERE " +
                 "delete_state = 0";
 
-        return jdbcTemplate.query(sql, todoTitleMapper);
+        return jdbcTemplate.query(sql, todoMapper);
     }
 
     @Override
-    public List<TodoTitleDto> findByState(int state) {
+    public List<Todo> findByState(int state) {
         Map<String, Object> map = new HashMap<>();
         map.put("state", state);
 
-        String sql = "SELECT " +
-                "id, title, state, update_at " +
+        String sql = "SELECT * " +
                 "FROM " +
                 "todo " +
                 "WHERE " +
@@ -58,25 +56,27 @@ public class TodoDaoImpl implements TodoDao {
                 "delete_state = 0";
 
 
-        return jdbcTemplate.query(sql, map, todoTitleMapper);
+        return jdbcTemplate.query(sql, map, todoMapper);
     }
 
-    private RowMapper<TodoTitleDto> todoTitleMapper = (rs, idx) -> {
-        return TodoTitleDto.builder()
+    private RowMapper<Todo> todoMapper = (rs, idx) -> {
+        return Todo.builder()
                 .id(rs.getInt("id"))
                 .title(rs.getString("title"))
+                .content(rs.getString("content"))
                 .state(rs.getInt("state"))
+                .deleteState(rs.getInt("delete_state"))
+                .createAt(rs.getTimestamp("create_at").toLocalDateTime())
                 .updateAt(rs.getTimestamp("update_at").toLocalDateTime())
                 .build();
     };
 
     @Override
-    public Optional<TodoDetailDto> findById(int id) {
+    public Optional<Todo> findById(int id) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
 
-        String sql = "SELECT " +
-                "id, title, content, state, create_at, update_at " +
+        String sql = "SELECT * " +
                 "FROM " +
                 "todo " +
                 "WHERE " +
@@ -86,23 +86,18 @@ public class TodoDaoImpl implements TodoDao {
 
 
         try {
-            return Optional.of(jdbcTemplate.queryForObject(sql, map, todoDetailMapper));
+            return Optional.of(jdbcTemplate.queryForObject(sql, map, todoMapper));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     @Override
-    public int postTodo(PostRequestDto postRequestDto) {
+    public int postTodo(Todo todo) {
         String sql = "INSERT INTO todo(title, content, create_at, update_at) " +
                 "VALUES(:title, :content, :createAt, :updateAt)";
 
-        SqlParameterSource param = new BeanPropertySqlParameterSource(Todo.builder()
-                .title(postRequestDto.getTitle())
-                .content(postRequestDto.getContent())
-                .createAt(LocalDateTime.now())
-                .updateAt(LocalDateTime.now())
-                .build());
+        SqlParameterSource param = new BeanPropertySqlParameterSource(todo);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -125,25 +120,13 @@ public class TodoDaoImpl implements TodoDao {
         return jdbcTemplate.update(sql, map);
     }
 
-    private RowMapper<TodoDetailDto> todoDetailMapper = (rs, idx) -> {
-        return TodoDetailDto.builder()
-                .id(rs.getInt("id"))
-                .title(rs.getString("title"))
-                .content(rs.getString("content"))
-                .state(rs.getInt("state"))
-                .createAt(rs.getTimestamp("create_at").toLocalDateTime())
-                .updateAt(rs.getTimestamp("update_at").toLocalDateTime())
-                .build();
-    };
-
     @Override
-    public List<TodoTitleDto> findByPeriod(PeriodDto periodDto) {
+    public List<Todo> findByPeriod(LocalDate start, LocalDate end) {
         Map<String, Object> map = new HashMap<>();
-        map.put("start", LocalDateTime.of(periodDto.getStart(), LocalTime.MIN));
-        map.put("end", LocalDateTime.of(periodDto.getEnd(), LocalTime.MAX));
+        map.put("start", LocalDateTime.of(start, LocalTime.MIN));
+        map.put("end", LocalDateTime.of(end, LocalTime.MAX));
 
-        String sql = "SELECT " +
-                "id, title, state, update_at " +
+        String sql = "SELECT * " +
                 "FROM " +
                 "todo " +
                 "WHERE update_at " +
@@ -151,7 +134,7 @@ public class TodoDaoImpl implements TodoDao {
                 "AND delete_state = 0";
 
 
-        return jdbcTemplate.query(sql, map, todoTitleMapper);
+        return jdbcTemplate.query(sql, map, todoMapper);
     }
 
     @Override
@@ -161,8 +144,7 @@ public class TodoDaoImpl implements TodoDao {
         map.put("state", state);
         map.put("update_at", LocalDateTime.now());
 
-        String sql = "UPDATE " +
-                "todo " +
+        String sql = "UPDATE todo " +
                 "SET state = :state, update_at = :update_at " +
                 "WHERE id = :id AND delete_state = 0";
 
@@ -170,38 +152,27 @@ public class TodoDaoImpl implements TodoDao {
     }
 
     @Override
-    public List<TodoDeleteTitleDto> findDelete() {
-        String sql = "SELECT " +
-                "id, title, state, update_at " +
+    public List<Todo> findDelete() {
+        String sql = "SELECT * " +
                 "FROM " +
                 "todo " +
                 "WHERE " +
                 "delete_state = 1";
 
-        return jdbcTemplate.query(sql, todoDeleteTitleMapper);
+        return jdbcTemplate.query(sql, todoMapper);
     }
 
-    private RowMapper<TodoDeleteTitleDto> todoDeleteTitleMapper = (rs, idx) -> {
-        return TodoDeleteTitleDto.builder()
-                .id(rs.getInt("id"))
-                .title(rs.getString("title"))
-                .state(rs.getInt("state"))
-                .deleteAt(rs.getTimestamp("update_at").toLocalDateTime())
-                .build();
-    };
-
     @Override
-    public int updateTodo(TodoUpdateDto todoUpdateDto) {
-        String sql = "UPDATE " +
-                "todo " +
+    public int updateTodo(Todo todo) {
+        String sql = "UPDATE todo " +
                 "SET title = :title, content = :content, update_at = :update_at " +
                 "WHERE id = :id AND delete_state = 0";
 
         Map<String, Object> map = new HashMap<>();
-        map.put("id", todoUpdateDto.getId());
-        map.put("title", todoUpdateDto.getTitle());
-        map.put("content", todoUpdateDto.getContent());
-        map.put("update_at", LocalDateTime.now());
+        map.put("id", todo.getId());
+        map.put("title", todo.getTitle());
+        map.put("content", todo.getContent());
+        map.put("update_at", todo.getUpdateAt());
 
         return jdbcTemplate.update(sql, map);
     }

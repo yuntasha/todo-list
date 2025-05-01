@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface TodoService {
     TodoDetailDto getTodoDetail(int id);
-    List<TodoTitleDto> getTodo();
+    List<TodoTitleDTO> getTodo();
     int postTodo(PostRequestDto postRequestDto);
     int deleteTodo(int id);
-    List<TodoTitleDto> getTodoByPeriod(PeriodDto periodDto);
+    List<TodoTitleDTO> getTodoByPeriod(PeriodDto periodDto);
     void patchState(PatchStateDTO patchStateDTO);
     List<TodoDeleteTitleDto> getDeleteTodo();
     int restoreTodo(int id);

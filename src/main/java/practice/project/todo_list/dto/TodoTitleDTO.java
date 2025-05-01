@@ -8,18 +8,18 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class TodoDeleteTitleDto {
+public class TodoTitleDTO {
     private int id;
     private String title;
     private int state;
-    private LocalDateTime deleteAt;
+    private LocalDateTime updateAt;
 
-    public static TodoDeleteTitleDto from(Todo todo) {
-        return TodoDeleteTitleDto.builder()
+    public static TodoTitleDTO from(Todo todo) {
+        return TodoTitleDTO.builder()
                 .id(todo.getId())
                 .title(todo.getTitle())
                 .state(todo.getState())
-                .deleteAt(todo.getUpdateAt())
+                .updateAt(todo.getUpdateAt())
                 .build();
     }
 }

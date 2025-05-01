@@ -21,7 +21,9 @@ public class DailyServiceImpl implements DailyService {
 
     @Override
     public List<DailyTitleDTO> getDailyList() {
-        return dailyDao.findAll();
+        return dailyDao.findAll().stream()
+                .map(DailyTitleDTO::from)
+                .toList();
     }
 
     @Override

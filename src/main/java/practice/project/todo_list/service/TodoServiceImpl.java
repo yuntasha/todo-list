@@ -23,17 +23,20 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public TodoDetailDto getTodoDetail(int id) {
-        return todoDao.findById(id).orElseThrow(() -> new BusinessException(TodoErrorCode.TODO_NOT_FOUND));
+        return TodoDetailDto.from(
+                todoDao.findById(id)
+                .orElseThrow(() -> new BusinessException(TodoErrorCode.TODO_NOT_FOUND))
+        );
     }
 
     @Override
-    public List<TodoTitleDto> getTodo() {
-        return todoDao.findAll();
+    public List<TodoTitleDTO> getTodo() {
+        return todoDao.findAll().stream().map(TodoTitleDTO::from).toList();
     }
 
     @Override
     public int postTodo(PostRequestDto postRequestDto) {
-        return todoDao.postTodo(postRequestDto);
+        return todoDao.postTodo(postRequestDto.toEntity());
     }
 
     @Override
@@ -45,11 +48,11 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public List<TodoTitleDto> getTodoByPeriod(PeriodDto periodDto) {
+    public List<TodoTitleDTO> getTodoByPeriod(PeriodDto periodDto) {
         if (periodDto.getStart().isAfter(periodDto.getEnd())) {
             throw new BusinessException(TodoErrorCode.WRONG_PERIOD);
         }
-        return todoDao.findByPeriod(periodDto);
+        return todoDao.findByPeriod(periodDto.getStart(), periodDto.getEnd()).stream().map(TodoTitleDTO::from).toList();
     }
 
     @Override
@@ -60,7 +63,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public List<TodoDeleteTitleDto> getDeleteTodo() {
-        return todoDao.findDelete();
+        return todoDao.findDelete().stream().map(TodoDeleteTitleDto::from).toList();
     }
 
     @Override
@@ -73,7 +76,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public void updateTodo(TodoUpdateDto todoUpdateDto) {
-        if (todoDao.updateTodo(todoUpdateDto) == 0) {
+        if (todoDao.updateTodo(todoUpdateDto.toEntity()) == 0) {
             throw new BusinessException(TodoErrorCode.TODO_NOT_FOUND);
         }
     }
