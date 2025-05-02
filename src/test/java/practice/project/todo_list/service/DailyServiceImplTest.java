@@ -53,7 +53,7 @@ class DailyServiceImplTest {
     @DisplayName("데일리 전부 조회 API 성공 - 몇 개 있는 경우")
     void getDailyListSuccess() {
         // given
-        doReturn(List.of(new DailyTitleDTO(1, "abc", LocalDate.MAX), new DailyTitleDTO(1, "abc", LocalDate.MAX), new DailyTitleDTO(1, "abc", LocalDate.MAX)))
+        doReturn(List.of(Daily.builder().build(), Daily.builder().build(),Daily.builder().build()))
                 .when(dailyDao).findAll();
 
         // when

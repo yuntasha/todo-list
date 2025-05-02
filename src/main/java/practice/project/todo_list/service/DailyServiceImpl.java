@@ -28,7 +28,7 @@ public class DailyServiceImpl implements DailyService {
 
     @Override
     public void postDaily(PostDailyDTO postDailyDTO) {
-        Daily daily = Daily.from(postDailyDTO);
+        Daily daily = postDailyDTO.toEntity();
 
         if (daily.isBefore()) {
             throw new BusinessException(DailyErrorCode.DAILY_DEADLINE_PAST);
@@ -53,7 +53,7 @@ public class DailyServiceImpl implements DailyService {
 
     @Override
     public void update(DailyModifyDTO dailyModifyDTO) {
-        int count = dailyDao.modify(Daily.from(dailyModifyDTO));
+        int count = dailyDao.modify(dailyModifyDTO.toEntity());
         if (count == 0) {
             throw new BusinessException(DailyErrorCode.DAILY_NOT_FOUND);
         }

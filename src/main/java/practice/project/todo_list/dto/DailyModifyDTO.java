@@ -3,9 +3,11 @@ package practice.project.todo_list.dto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.web.dto.PutDailyRequestDTO;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @Builder
@@ -23,5 +25,18 @@ public class DailyModifyDTO {
                 .content(putDailyRequestDTO.getContent())
                 .deadline(putDailyRequestDTO.getDeadline())
                 .build();
+    }
+
+    public Daily toEntity() {
+        return Daily.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .deadline(convertLocalDate(deadline))
+                .build();
+    }
+
+    private static LocalDate convertLocalDate(LocalDate localDate) {
+        return Objects.isNull(localDate) ? LocalDate.MAX : localDate;
     }
 }
