@@ -319,6 +319,89 @@ class TodoDaoImplTest {
         assertEquals(4, list.size());
     }
 
+    @Test
+    @DisplayName("Todo 개수 세어주는 메서드")
+    void countTodo() {
+        // given
+        // when
+        int count = todoDao.countTodo();
+
+        // then
+        assertEquals(5, count);
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameterOffsetPage")
+    @DisplayName("오프셋 페이징 성공 - 존재하는 경우")
+    void offsetPagingSuccessExist(int pageSize, int offset, int size, String title) {
+        // given
+        // when
+        List<Todo> todos = todoDao.offsetPaging(pageSize, offset);
+
+        // then
+        assertEquals(size, todos.size());
+        assertEquals(title, todos.get(0).getTitle());
+    }
+
+    private static Stream<Arguments> parameterOffsetPage() {
+        return Stream.of(
+                Arguments.of(2, 0, 2, "테스트 1"), // 성공적
+                Arguments.of(6, 0, 5, "테스트 1"),
+                Arguments.of(2, 2, 2, "테스트 3"),
+                Arguments.of(4, 4, 1, "테스트 5")
+        );
+    }
+
+    @Test
+    @DisplayName("오프셋 페이징 성공 - 비어있는 경우")
+    void offsetPagingSuccessEmpty() {
+        // given
+        int pageSize = 10;
+        int offset = 10;
+
+        // when
+        List<Todo> todos = todoDao.offsetPaging(pageSize, offset);
+
+        // then
+        assertTrue(todos.isEmpty());
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameterOffsetPageWithState")
+    @DisplayName("오프셋 페이징 성공 - 존재하는 경우")
+    void offsetPagingWithStateSuccessExist(int state, int pageSize, int offset, int size, String title) {
+        // given
+        // when
+        List<Todo> todos = todoDao.offsetPagingByState(state, pageSize, offset);
+
+        // then
+        assertEquals(size, todos.size());
+        assertEquals(title, todos.get(0).getTitle());
+    }
+
+    private static Stream<Arguments> parameterOffsetPageWithState() {
+        return Stream.of(
+                Arguments.of(0, 2, 0, 1, "테스트 1"), // 성공적
+                Arguments.of(1, 2, 0, 2, "테스트 2"),
+                Arguments.of(2, 2, 0, 2, "테스트 4")
+        );
+    }
+
+    @Test
+    @DisplayName("오프셋 페이징 성공 - 비어있는 경우")
+    void offsetPagingWithStateSuccessEmpty() {
+        // given
+        int state = 0;
+        int pageSize = 10;
+        int offset = 10;
+
+        // when
+        List<Todo> todos = todoDao.offsetPagingByState(state, pageSize, offset);
+
+        // then
+        assertTrue(todos.isEmpty());
+    }
+
     @AfterAll
     void end() throws SQLException {
         try (Connection conn = dataSource.getConnection()) {

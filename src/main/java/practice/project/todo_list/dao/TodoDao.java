@@ -20,4 +20,8 @@ public interface TodoDao {
     List<Todo> findDelete();
     int updateTodo(Todo todo);
     int deleteBefore(LocalDate cutLine);
+    List<Todo> offsetPaging(int size, int offset);
+    int countTodo();
+    List<Todo> offsetPagingByState(int state, int size, int offset);
+    int countTodoByState(int state);
 }

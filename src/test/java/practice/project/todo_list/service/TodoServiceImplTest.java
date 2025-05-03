@@ -10,14 +10,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import practice.project.todo_list.dao.TodoDao;
-import practice.project.todo_list.dto.PatchStateDTO;
-import practice.project.todo_list.dto.PeriodDto;
-import practice.project.todo_list.dto.TodoTitleDTO;
-import practice.project.todo_list.dto.TodoUpdateDto;
+import practice.project.todo_list.domain.Todo;
+import practice.project.todo_list.dto.*;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -38,9 +37,9 @@ class TodoServiceImplTest {
     @DisplayName("기간 검색 API 성공")
     void 기간_검색하기(LocalDate start, LocalDate end) {
         // given
-        doReturn(List.of(TodoTitleDTO.builder().build(),
-                TodoTitleDTO.builder().build(),
-                TodoTitleDTO.builder().build()))
+        doReturn(List.of(Todo.builder().build(),
+                Todo.builder().build(),
+                Todo.builder().build()))
                 .when(todoDao).findByPeriod(any(LocalDate.class), any(LocalDate.class));
         PeriodDto input = new PeriodDto(start, end);
 
@@ -166,5 +165,55 @@ class TodoServiceImplTest {
 
         // then
         assertEquals(TodoErrorCode.TODO_NOT_FOUND, ex.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("오프셋 페이징 성공 - 상태 없음")
+    void offsetPaging() {
+        // given
+        Integer state = null;
+        int size = 5;
+        int offset = 1;
+        TodoPageOffsetInDTO dto = TodoPageOffsetInDTO.of(size, offset);
+        doReturn(10)
+                .when(todoDao)
+                .countTodo();
+        doReturn(Collections.EMPTY_LIST)
+                .when(todoDao)
+                .offsetPaging(size, offset * size);
+
+        // when
+        TodoPageOffsetOutDTO result = todoService.getPageTodo(dto);
+
+        // then
+        assertEquals(2, result.getLastPage());
+        assertEquals(2, result.getPage());
+        assertEquals(5, result.getSize());
+        assertTrue(result.getTodoList().isEmpty());
+    }
+
+    @Test
+    @DisplayName("오프셋 페이징 성공 - 상태 있음")
+    void offsetPagingExistState() {
+        // given
+        Integer state = 0;
+        int size = 5;
+        int offset = 1;
+        TodoPageOffsetInDTO dto = TodoPageOffsetInDTO.of(state, size, offset);
+        doReturn(10)
+                .when(todoDao)
+                .countTodo();
+        doReturn(Collections.EMPTY_LIST)
+                .when(todoDao)
+                .offsetPagingByState(state, size, offset * size);
+
+        // when
+        TodoPageOffsetOutDTO result = todoService.getPageTodo(dto);
+
+        // then
+        assertEquals(2, result.getLastPage());
+        assertEquals(2, result.getPage());
+        assertEquals(5, result.getSize());
+        assertTrue(result.getTodoList().isEmpty());
     }
 }

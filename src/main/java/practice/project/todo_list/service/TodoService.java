@@ -16,4 +16,5 @@ public interface TodoService {
     int restoreTodo(int id);
     void updateTodo(TodoUpdateDto todoUpdateDto);
     int deleteTodoInTrash();
+    TodoPageOffsetOutDTO getPageTodo(TodoPageOffsetInDTO todoPageOffsetInDTO);
 }

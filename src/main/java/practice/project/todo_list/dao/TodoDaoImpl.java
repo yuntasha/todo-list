@@ -16,10 +16,7 @@ import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class TodoDaoImpl implements TodoDao {
@@ -186,5 +183,57 @@ public class TodoDaoImpl implements TodoDao {
         map.put("cutLine", cutLine.atStartOfDay());
 
         return jdbcTemplate.update(sql, map);
+    }
+
+    @Override
+    public List<Todo> offsetPaging(int size, int offset) {
+        String sql = "SELECT * " +
+                "FROM todo " +
+                "WHERE delete_state = 0 " +
+                "LIMIT :size OFFSET :offset";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("size", size);
+        map.put("offset", offset);
+
+        return jdbcTemplate.query(sql, map, todoMapper);
+    }
+
+    @Override
+    public int countTodo() {
+        String sql = "SELECT COUNT(*) " +
+                "FROM todo " +
+                "WHERE delete_state = 0";
+
+        return jdbcTemplate.queryForObject(sql, Collections.emptyMap(), Integer.class);
+    }
+
+    @Override
+    public List<Todo> offsetPagingByState(int state, int size, int offset) {
+        String sql = "SELECT * " +
+                "FROM todo " +
+                "WHERE delete_state = 0 " +
+                "AND state = :state " +
+                "LIMIT :size OFFSET :offset";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("state", state);
+        map.put("size", size);
+        map.put("offset", offset);
+
+        return jdbcTemplate.query(sql, map, todoMapper);
+    }
+
+    @Override
+    public int countTodoByState(int state) {
+        String sql = "SELECT COUNT(*) " +
+                "FROM todo " +
+                "WHERE state = :state " +
+                "AND delete_state = 0";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("state", state);
+
+        return jdbcTemplate.queryForObject(sql, map, Integer.class);
     }
 }

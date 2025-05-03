@@ -85,4 +85,25 @@ public class TodoServiceImpl implements TodoService {
     public int deleteTodoInTrash() {
         return todoDao.deleteBefore(LocalDate.now().minusMonths(1L));
     }
+
+    @Override
+    public TodoPageOffsetOutDTO getPageTodo(TodoPageOffsetInDTO todoPageOffsetInDTO) {
+        int todoCount = todoDao.countTodo();
+
+        if (todoPageOffsetInDTO.haveState()) {
+            List<TodoTitleDTO> todoList = todoDao
+                    .offsetPagingByState(todoPageOffsetInDTO.getState(), todoPageOffsetInDTO.getSize(), todoPageOffsetInDTO.getSqlOffset())
+                    .stream()
+                    .map(TodoTitleDTO::from)
+                    .toList();
+            return TodoPageOffsetOutDTO.of(todoList,todoPageOffsetInDTO,todoCount);
+        } else {
+            List<TodoTitleDTO> todoList = todoDao
+                    .offsetPaging(todoPageOffsetInDTO.getSize(), todoPageOffsetInDTO.getSqlOffset())
+                    .stream()
+                    .map(TodoTitleDTO::from)
+                    .toList();
+            return TodoPageOffsetOutDTO.of(todoList,todoPageOffsetInDTO,todoCount);
+        }
+    }
 }
