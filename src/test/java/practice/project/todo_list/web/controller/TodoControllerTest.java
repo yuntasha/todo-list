@@ -17,10 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import practice.project.todo_list.dto.PatchStateDTO;
-import practice.project.todo_list.dto.PeriodDto;
-import practice.project.todo_list.dto.TodoUpdateDto;
+import practice.project.todo_list.dto.*;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
 import practice.project.todo_list.global.error.handler.GlobalExceptionHandler;
@@ -29,7 +29,9 @@ import practice.project.todo_list.web.dto.PatchRequestDTO;
 import practice.project.todo_list.web.dto.PutRequestDTO;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.containsString;
@@ -280,5 +282,58 @@ class TodoControllerTest {
                 Arguments.of(null, "5"), // null
                 Arguments.of("0", null) // null
         );
+    }
+
+    @Test
+    @DisplayName("Todo 오프셋 페이징 성공 - 상태 있음")
+    void getOffsetPagingSuccess() throws Exception {
+        // given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("page", "1");
+        params.add("size", "10");
+        params.add("state", "1");
+
+        final String url = "/api/v1/todo/page/offset";
+
+        TodoPageOffsetInDTO dto = TodoPageOffsetInDTO.of(1, 10, 0);
+
+        doReturn(TodoPageOffsetOutDTO.of(Collections.emptyList(), dto, 20))
+                .when(todoService).getPageTodo(any(TodoPageOffsetInDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .params(params)
+        );
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Todo 오프셋 페이징 성공 - 상태 없음")
+    void getOffsetPagingSuccessNoState() throws Exception {
+        // given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("page", "1");
+        params.add("size", "10");
+
+        final String url = "/api/v1/todo/page/offset";
+
+        TodoPageOffsetInDTO dto = TodoPageOffsetInDTO.of(10, 0);
+
+        doReturn(TodoPageOffsetOutDTO.of(Collections.emptyList(), dto, 20))
+                .when(todoService).getPageTodo(any(TodoPageOffsetInDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .params(params)
+        );
+
+        // then
+        result.andExpect(status().isOk());
     }
 }

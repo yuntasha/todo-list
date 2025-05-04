@@ -1,6 +1,8 @@
 package practice.project.todo_list.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import practice.project.todo_list.dao.TodoDao;
@@ -15,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class TodoServiceImpl implements TodoService {
 
     private final TodoDao todoDao;
@@ -88,9 +91,8 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public TodoPageOffsetOutDTO getPageTodo(TodoPageOffsetInDTO todoPageOffsetInDTO) {
-        int todoCount = todoDao.countTodo();
-
         if (todoPageOffsetInDTO.haveState()) {
+            int todoCount = todoDao.countTodoByState(todoPageOffsetInDTO.getState());
             List<TodoTitleDTO> todoList = todoDao
                     .offsetPagingByState(todoPageOffsetInDTO.getState(), todoPageOffsetInDTO.getSize(), todoPageOffsetInDTO.getSqlOffset())
                     .stream()
@@ -98,6 +100,7 @@ public class TodoServiceImpl implements TodoService {
                     .toList();
             return TodoPageOffsetOutDTO.of(todoList,todoPageOffsetInDTO,todoCount);
         } else {
+            int todoCount = todoDao.countTodo();
             List<TodoTitleDTO> todoList = todoDao
                     .offsetPaging(todoPageOffsetInDTO.getSize(), todoPageOffsetInDTO.getSqlOffset())
                     .stream()

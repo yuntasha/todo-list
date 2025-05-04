@@ -68,4 +68,9 @@ public class TodoController {
         todoService.updateTodo(TodoUpdateDto.from(id, putRequestDTO));
         return SuccessResponseDto.success();
     }
+
+    @GetMapping("/page/offset")
+    public SuccessResponseDto<GetPageOffsetResponseDTO> getPageOffset(@ModelAttribute @Valid GetPageOffsetRequestDTO getPageOffsetRequestDTO) {
+        return SuccessResponseDto.success(GetPageOffsetResponseDTO.of(todoService.getPageTodo(TodoPageOffsetInDTO.of(getPageOffsetRequestDTO))));
+    }
 }

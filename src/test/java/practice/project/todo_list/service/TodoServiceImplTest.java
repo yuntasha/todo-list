@@ -202,7 +202,7 @@ class TodoServiceImplTest {
         TodoPageOffsetInDTO dto = TodoPageOffsetInDTO.of(state, size, offset);
         doReturn(10)
                 .when(todoDao)
-                .countTodo();
+                .countTodoByState(state);
         doReturn(Collections.EMPTY_LIST)
                 .when(todoDao)
                 .offsetPagingByState(state, size, offset * size);
