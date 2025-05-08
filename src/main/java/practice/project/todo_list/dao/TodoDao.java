@@ -24,4 +24,6 @@ public interface TodoDao {
     int countTodo();
     List<Todo> offsetPagingByState(int state, int size, int offset);
     int countTodoByState(int state);
+    List<Todo> cursorPaging(int size, int cursor);
+    List<Todo> cursorPagingByState(int state, int size, int cursor);
 }

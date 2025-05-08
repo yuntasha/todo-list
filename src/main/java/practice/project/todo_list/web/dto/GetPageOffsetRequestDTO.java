@@ -7,7 +7,7 @@ import lombok.Getter;
 import org.springframework.lang.Nullable;
 
 @AllArgsConstructor
-@Getter()
+@Getter
 public class GetPageOffsetRequestDTO {
 
     @NotNull(message = "page는 반드시 존재해야합니다.")

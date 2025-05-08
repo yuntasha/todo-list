@@ -236,4 +236,36 @@ public class TodoDaoImpl implements TodoDao {
 
         return jdbcTemplate.queryForObject(sql, map, Integer.class);
     }
+
+    @Override
+    public List<Todo> cursorPaging(int size, int cursor) {
+        String sql = "SELECT * " +
+                "FROM todo " +
+                "WHERE delete_state = 0 " +
+                "AND id > :cursor " +
+                "LIMIT :size";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("size", size);
+        map.put("cursor", cursor);
+
+        return jdbcTemplate.query(sql, map, todoMapper);
+    }
+
+    @Override
+    public List<Todo> cursorPagingByState(int state, int size, int cursor) {
+        String sql = "SELECT * " +
+                "FROM todo " +
+                "WHERE delete_state = 0 " +
+                "AND id > :cursor " +
+                "AND state = :state " +
+                "LIMIT :size";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("size", size);
+        map.put("cursor", cursor);
+        map.put("state", state);
+
+        return jdbcTemplate.query(sql, map, todoMapper);
+    }
 }

@@ -298,7 +298,7 @@ class TodoControllerTest {
         TodoPageOffsetInDTO dto = TodoPageOffsetInDTO.of(1, 10, 0);
 
         doReturn(TodoPageOffsetOutDTO.of(Collections.emptyList(), dto, 20))
-                .when(todoService).getPageTodo(any(TodoPageOffsetInDTO.class));
+                .when(todoService).getPageOffsetTodo(any(TodoPageOffsetInDTO.class));
 
         // when
         final ResultActions result = mockMvc.perform(
@@ -324,7 +324,66 @@ class TodoControllerTest {
         TodoPageOffsetInDTO dto = TodoPageOffsetInDTO.of(10, 0);
 
         doReturn(TodoPageOffsetOutDTO.of(Collections.emptyList(), dto, 20))
-                .when(todoService).getPageTodo(any(TodoPageOffsetInDTO.class));
+                .when(todoService).getPageOffsetTodo(any(TodoPageOffsetInDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .params(params)
+        );
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Todo 커서 페이징 성공 - 커서 없음")
+    void getCursorPagingSuccessNoCursor() throws Exception {
+        // given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("state", "1");
+        params.add("size", "10");
+
+        final String url = "/api/v1/todo/page/cursor";
+
+        TodoPageCursorInDTO dto = TodoPageCursorInDTO.builder()
+                .cursor(0)
+                .size(10)
+                .state(1)
+                .build();
+
+        doReturn(TodoPageCursorOutDTO.of(Collections.emptyList(), dto))
+                .when(todoService).getPageCursorTodo(any(TodoPageCursorInDTO.class));
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .params(params)
+        );
+
+        // then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Todo 커서 페이징 성공 - 상태 없음")
+    void getCursorPagingSuccessNoState() throws Exception {
+        // given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("cursor", "1");
+        params.add("size", "10");
+
+        final String url = "/api/v1/todo/page/cursor";
+
+        TodoPageCursorInDTO dto = TodoPageCursorInDTO.builder()
+                .cursor(1)
+                .size(10)
+                .build();
+
+        doReturn(TodoPageCursorOutDTO.of(Collections.emptyList(), dto))
+                .when(todoService).getPageCursorTodo(any(TodoPageCursorInDTO.class));
 
         // when
         final ResultActions result = mockMvc.perform(

@@ -402,11 +402,75 @@ class TodoDaoImplTest {
         assertTrue(todos.isEmpty());
     }
 
+    @Test
+    @DisplayName("커서 페이징 성공 - 비어있는 경우")
+    void cursorPagingSuccessEmpty() {
+        // given
+        int pageSize = 10;
+        int cursor = 10;
+
+        // when
+        List<Todo> todos = todoDao.cursorPaging(pageSize, cursor);
+
+        // then
+        assertTrue(todos.isEmpty());
+    }
+
+    @Test
+    @DisplayName("커서 페이징 성공 - 존재하는 경우")
+    void cursorPagingSuccessExist() {
+        // given
+        int pageSize = 2;
+        int cursor = 2;
+
+        // when
+        List<Todo> todos = todoDao.cursorPaging(pageSize, cursor);
+
+        // then
+        assertEquals(2, todos.size());
+        assertEquals(3, todos.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("커서 상태기반 페이징 성공 - 비어있는 경우")
+    void cursorPagingWithStateSuccessEmpty() {
+        // given
+        int pageSize = 5;
+        int cursor = 2;
+        int state = 0;
+
+        // when
+        List<Todo> todos = todoDao.cursorPagingByState(pageSize, cursor, state);
+
+        // then
+        assertTrue(todos.isEmpty());
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameterCursorPageWithState")
+    @DisplayName("커서 상태기반 페이징 성공 - 존재하는 경우")
+    void CursorPagingWithStateSuccessExist(int state, int pageSize, int cursor, int size, int result, String title) {
+        // given
+        // when
+        List<Todo> todos = todoDao.cursorPagingByState(state, pageSize, cursor);
+
+        // then
+        assertEquals(result, todos.size());
+        assertEquals(title, todos.get(0).getTitle());
+    }
+
+    private static Stream<Arguments> parameterCursorPageWithState() {
+        return Stream.of(
+                Arguments.of(0, 2, 0, 2, 1, "테스트 1"), // 성공적
+                Arguments.of(1, 2, 2, 2, 1, "테스트 3"),
+                Arguments.of(2, 2, 0, 2, 2, "테스트 4")
+        );
+    }
+
     @AfterAll
     void end() throws SQLException {
         try (Connection conn = dataSource.getConnection()) {
             conn.createStatement().execute("DROP TABLE todo");
         }
     }
-
 }

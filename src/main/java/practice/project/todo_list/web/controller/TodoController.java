@@ -71,6 +71,11 @@ public class TodoController {
 
     @GetMapping("/page/offset")
     public SuccessResponseDto<GetPageOffsetResponseDTO> getPageOffset(@ModelAttribute @Valid GetPageOffsetRequestDTO getPageOffsetRequestDTO) {
-        return SuccessResponseDto.success(GetPageOffsetResponseDTO.of(todoService.getPageTodo(TodoPageOffsetInDTO.of(getPageOffsetRequestDTO))));
+        return SuccessResponseDto.success(GetPageOffsetResponseDTO.of(todoService.getPageOffsetTodo(TodoPageOffsetInDTO.of(getPageOffsetRequestDTO))));
+    }
+
+    @GetMapping("/page/cursor")
+    public SuccessResponseDto<GetPageCursorResponseDTO> getPageCursor(@ModelAttribute @Valid GetPageCursorRequestDTO getPageCursorRequestDTO) {
+        return SuccessResponseDto.success(GetPageCursorResponseDTO.of(todoService.getPageCursorTodo(TodoPageCursorInDTO.of(getPageCursorRequestDTO))));
     }
 }

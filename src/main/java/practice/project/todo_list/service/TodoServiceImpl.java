@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import practice.project.todo_list.dao.TodoDao;
+import practice.project.todo_list.domain.Todo;
 import practice.project.todo_list.dto.*;
 import practice.project.todo_list.global.error.code.TodoErrorCode;
 import practice.project.todo_list.global.error.exception.BusinessException;
@@ -90,7 +91,7 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public TodoPageOffsetOutDTO getPageTodo(TodoPageOffsetInDTO todoPageOffsetInDTO) {
+    public TodoPageOffsetOutDTO getPageOffsetTodo(TodoPageOffsetInDTO todoPageOffsetInDTO) {
         if (todoPageOffsetInDTO.haveState()) {
             int todoCount = todoDao.countTodoByState(todoPageOffsetInDTO.getState());
             List<TodoTitleDTO> todoList = todoDao
@@ -108,5 +109,26 @@ public class TodoServiceImpl implements TodoService {
                     .toList();
             return TodoPageOffsetOutDTO.of(todoList,todoPageOffsetInDTO,todoCount);
         }
+    }
+
+    @Override
+    public TodoPageCursorOutDTO getPageCursorTodo(TodoPageCursorInDTO todoPageCursorInDTO) {
+        if (todoPageCursorInDTO.haveState()) {
+            List<TodoTitleDTO> todoList = todoDao
+                    .cursorPagingByState(todoPageCursorInDTO.getState(), todoPageCursorInDTO.getSize() + 1, todoPageCursorInDTO.getCursor())
+                    .stream()
+                    .map(TodoTitleDTO::from)
+                    .toList();
+
+            return TodoPageCursorOutDTO.of(todoList, todoPageCursorInDTO);
+        }
+
+        List<TodoTitleDTO> todoList = todoDao
+                .cursorPaging(todoPageCursorInDTO.getSize() + 1, todoPageCursorInDTO.getCursor())
+                .stream()
+                .map(TodoTitleDTO::from)
+                .toList();
+
+        return TodoPageCursorOutDTO.of(todoList, todoPageCursorInDTO);
     }
 }

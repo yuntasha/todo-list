@@ -183,7 +183,7 @@ class TodoServiceImplTest {
                 .offsetPaging(size, offset * size);
 
         // when
-        TodoPageOffsetOutDTO result = todoService.getPageTodo(dto);
+        TodoPageOffsetOutDTO result = todoService.getPageOffsetTodo(dto);
 
         // then
         assertEquals(2, result.getLastPage());
@@ -208,12 +208,122 @@ class TodoServiceImplTest {
                 .offsetPagingByState(state, size, offset * size);
 
         // when
-        TodoPageOffsetOutDTO result = todoService.getPageTodo(dto);
+        TodoPageOffsetOutDTO result = todoService.getPageOffsetTodo(dto);
 
         // then
         assertEquals(2, result.getLastPage());
         assertEquals(2, result.getPage());
         assertEquals(5, result.getSize());
         assertTrue(result.getTodoList().isEmpty());
+    }
+
+    @Test
+    @DisplayName("커서 페이징 성공 - 상태 없음")
+    void cursorPaging() {
+        // given
+        Integer state = null;
+        int size = 5;
+        int cursor = 1;
+        int nextId = 6;
+        TodoPageCursorInDTO dto = TodoPageCursorInDTO.builder()
+                                        .cursor(cursor)
+                                        .size(size)
+                                        .state(state)
+                                        .build();
+
+        doReturn(List.of(Todo.builder().build(), Todo.builder().build(), Todo.builder().build(), Todo.builder().build(), Todo.builder().id(6).build(), Todo.builder().build()))
+                .when(todoDao)
+                .cursorPaging(size + 1, cursor);
+
+        // when
+        TodoPageCursorOutDTO result = todoService.getPageCursorTodo(dto);
+
+        // then
+        assertEquals(size, result.getSize());
+        assertEquals(nextId, result.getNextCursor());
+        assertEquals(5, result.getTodoList().size());
+        assertTrue(result.isHasNext());
+    }
+
+    @Test
+    @DisplayName("커서 페이징 성공 - 존재하지 않음")
+    void cursorPagingSuccessEmpty() {
+        // given
+        Integer state = null;
+        int size = 5;
+        int cursor = 1;
+        TodoPageCursorInDTO dto = TodoPageCursorInDTO.builder()
+                .cursor(cursor)
+                .size(size)
+                .state(state)
+                .build();
+
+        doReturn(Collections.EMPTY_LIST)
+                .when(todoDao)
+                .cursorPaging(size + 1, cursor);
+
+        // when
+        TodoPageCursorOutDTO result = todoService.getPageCursorTodo(dto);
+
+        // then
+        assertEquals(0, result.getSize());
+        assertEquals(-1, result.getNextCursor());
+        assertEquals(0, result.getTodoList().size());
+        assertFalse(result.isHasNext());
+    }
+
+    @Test
+    @DisplayName("상태 조건 커서 페이징 성공 - 상태 없음")
+    void cursorPagingWithStateSuccess() {
+        // given
+        Integer state = 0;
+        int size = 5;
+        int cursor = 1;
+        int nextId = 6;
+        TodoPageCursorInDTO dto = TodoPageCursorInDTO.builder()
+                .cursor(cursor)
+                .size(size)
+                .state(state)
+                .build();
+
+        doReturn(List.of(Todo.builder().build(), Todo.builder().build(), Todo.builder().build(), Todo.builder().build(), Todo.builder().id(6).build(), Todo.builder().build()))
+                .when(todoDao)
+                .cursorPagingByState(state, size + 1, cursor);
+
+        // when
+        TodoPageCursorOutDTO result = todoService.getPageCursorTodo(dto);
+
+        // then
+        assertEquals(size, result.getSize());
+        assertEquals(nextId, result.getNextCursor());
+        assertEquals(5, result.getTodoList().size());
+        assertTrue(result.isHasNext());
+    }
+
+    @Test
+    @DisplayName("상태 조건 커서 페이징 성공 - 존재하지 않음")
+    void cursorPagingByStateSuccessEmpty() {
+        // given
+        Integer state = 1;
+        int size = 5;
+        int cursor = 1;
+        TodoPageCursorInDTO dto = TodoPageCursorInDTO.builder()
+                .cursor(cursor)
+                .size(size)
+                .state(state)
+                .build();
+
+        doReturn(Collections.EMPTY_LIST)
+                .when(todoDao)
+                .cursorPagingByState(state, size + 1, cursor);
+
+        // when
+        TodoPageCursorOutDTO result = todoService.getPageCursorTodo(dto);
+
+        // then
+        assertEquals(0, result.getSize());
+        assertEquals(-1, result.getNextCursor());
+        assertEquals(0, result.getTodoList().size());
+        assertFalse(result.isHasNext());
     }
 }
