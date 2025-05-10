@@ -27,6 +27,6 @@ public class TodoPageCursorOutDTO {
         if (todoList.isEmpty()) {
             return -1;
         }
-        return todoList.get(Math.min(todoList.size() - 1, todoPageCursorInDTO.getSize())).getId();
+        return todoList.get(Math.min(todoList.size() - 1, todoPageCursorInDTO.getSize() - 1)).getId();
     }
 }
