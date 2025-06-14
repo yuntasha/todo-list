@@ -3,6 +3,7 @@ package practice.project.todo_list.web.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import practice.project.todo_list.dto.DailyDetailDTO;
@@ -22,29 +23,29 @@ public class DailyController {
     private final DailyService dailyService;
 
     @GetMapping()
-    public SuccessResponseDto<GetDailyListResponseDTO> getDailyList() {
+    public ResponseEntity<SuccessResponseDto<GetDailyListResponseDTO>> getDailyList() {
         return SuccessResponseDto.success(new GetDailyListResponseDTO(dailyService.getDailyList()));
     }
 
     @PostMapping()
-    public SuccessResponseDto<Object> postDaily(@Valid @RequestBody PostDailyReqestDTO postDailyReqestDTO) {
+    public ResponseEntity<SuccessResponseDto<Object>> postDaily(@Valid @RequestBody PostDailyReqestDTO postDailyReqestDTO) {
         dailyService.postDaily(PostDailyDTO.from(postDailyReqestDTO));
         return SuccessResponseDto.success();
     }
 
     @GetMapping("{id}/detail")
-    public SuccessResponseDto<DailyDetailDTO> getDailyById(@Positive @PathVariable int id) {
+    public ResponseEntity<SuccessResponseDto<DailyDetailDTO>> getDailyById(@Positive @PathVariable int id) {
         return SuccessResponseDto.success(dailyService.getDailyDetail(id));
     }
 
     @DeleteMapping("{id}")
-    public SuccessResponseDto<Object> deleteDailyById(@Positive @PathVariable int id) {
+    public ResponseEntity<SuccessResponseDto<Object>> deleteDailyById(@Positive @PathVariable int id) {
         dailyService.deleteDaily(id);
         return SuccessResponseDto.success();
     }
 
     @PutMapping("{id}")
-    public SuccessResponseDto<Object> putDailyById(@Positive @PathVariable int id,
+    public ResponseEntity<SuccessResponseDto<Object>> putDailyById(@Positive @PathVariable int id,
                                                    @Valid @RequestBody PutDailyRequestDTO putDailyRequestDTO) {
         dailyService.update(DailyModifyDTO.of(id, putDailyRequestDTO));
         return SuccessResponseDto.success();
