@@ -13,6 +13,9 @@ import java.util.Objects;
 @Builder
 @Data
 public class DailyModifyDTO {
+
+    private static LocalDate MAX = LocalDate.of(2100, 12, 31);
+
     private int id;
     private String title;
     private String content;
@@ -37,6 +40,6 @@ public class DailyModifyDTO {
     }
 
     private static LocalDate convertLocalDate(LocalDate localDate) {
-        return Objects.isNull(localDate) ? LocalDate.MAX : localDate;
+        return Objects.isNull(localDate) ? MAX : localDate;
     }
 }

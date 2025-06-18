@@ -14,6 +14,9 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 public class PostDailyDTO {
+
+    private static LocalDate MAX = LocalDate.of(2100, 12, 31);
+
     private String title;
     private String content;
     private LocalDate deadline;
@@ -37,6 +40,6 @@ public class PostDailyDTO {
     }
 
     private static LocalDate convertLocalDate(LocalDate localDate) {
-        return Objects.isNull(localDate) ? LocalDate.MAX : localDate;
+        return Objects.isNull(localDate) ? MAX : localDate;
     }
 }
