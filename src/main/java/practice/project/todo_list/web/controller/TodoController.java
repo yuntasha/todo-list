@@ -28,7 +28,7 @@ public class TodoController {
     }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<SuccessResponseDto<TodoDetailDto>> getTodoDetail(@PathVariable("id") int id) {
+    public ResponseEntity<SuccessResponseDto<TodoDetailDto>> getTodoDetail(@PathVariable("id") @Positive(message = "id 값은 양수만 가능합니다.") int id) {
         return SuccessResponseDto.success(todoService.getTodoDetail(id));
     }
 
@@ -38,7 +38,7 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<SuccessResponseDto<DeleteResponseDto>> deleteTodo(@PathVariable("id") @Min(1) int id) {
+    public ResponseEntity<SuccessResponseDto<DeleteResponseDto>> deleteTodo(@PathVariable("id") @Positive(message = "id 값은 양수만 가능합니다.") int id) {
         return SuccessResponseDto.success(new DeleteResponseDto(todoService.deleteTodo(id)));
     }
 
@@ -48,7 +48,7 @@ public class TodoController {
     }
 
     @PatchMapping("/{id}/state")
-    public ResponseEntity<SuccessResponseDto<Object>> patchStateById(@PathVariable("id") @Min(1) int id, @RequestBody @Valid PatchRequestDTO patchRequestDTO) {
+    public ResponseEntity<SuccessResponseDto<Object>> patchStateById(@PathVariable("id") @Positive(message = "id 값은 양수만 가능합니다.") int id, @RequestBody @Valid PatchRequestDTO patchRequestDTO) {
         todoService.patchState(PatchStateDTO.of(id, patchRequestDTO));
         return SuccessResponseDto.success();
     }
@@ -59,7 +59,7 @@ public class TodoController {
     }
 
     @PatchMapping("/{id}/restore")
-    public ResponseEntity<SuccessResponseDto<Object>> patchRestoreById(@PathVariable("id") @Min(1) int id) {
+    public ResponseEntity<SuccessResponseDto<Object>> patchRestoreById(@PathVariable("id") @Positive(message = "id 값은 양수만 가능합니다.") int id) {
         return SuccessResponseDto.success(new DeleteResponseDto(todoService.restoreTodo(id)));
     }
 

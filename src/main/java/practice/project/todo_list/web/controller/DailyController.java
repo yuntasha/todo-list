@@ -30,7 +30,7 @@ public class DailyController {
     @PostMapping()
     public ResponseEntity<SuccessResponseDto<Object>> postDaily(@Valid @RequestBody PostDailyReqestDTO postDailyReqestDTO) {
         dailyService.postDaily(PostDailyDTO.from(postDailyReqestDTO));
-        return SuccessResponseDto.success();
+        return SuccessResponseDto.create();
     }
 
     @GetMapping("{id}/detail")
