@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import practice.project.todo_list.domain.Daily;
 import practice.project.todo_list.dto.DailyTitleDTO;
+import practice.project.todo_list.global.log.LogExecutionTime;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
@@ -43,6 +44,7 @@ public class DailyDaoImpl implements DailyDao {
     }
 
     @Override
+    @LogExecutionTime
     public List<Daily> findAll() {
         String sql = "SELECT * " +
                 "FROM daily";

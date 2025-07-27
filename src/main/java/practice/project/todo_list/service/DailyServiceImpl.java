@@ -53,7 +53,14 @@ public class DailyServiceImpl implements DailyService {
 
     @Override
     public void update(DailyModifyDTO dailyModifyDTO) {
-        int count = dailyDao.modify(dailyModifyDTO.toEntity());
+        Daily daily = dailyModifyDTO.toEntity();
+
+        if (daily.isBefore()) {
+            throw new BusinessException(DailyErrorCode.DAILY_DEADLINE_PAST);
+        }
+
+        int count = dailyDao.modify(daily);
+
         if (count == 0) {
             throw new BusinessException(DailyErrorCode.DAILY_NOT_FOUND);
         }
